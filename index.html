@@ -426,7 +426,7 @@ function jbsRpc(name, args) {
 })();
 var BOOT = (function () {
   var b = null; try { b = JSON.parse(localStorage.getItem('jbs_boot') || 'null'); } catch (e) {}
-  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.1", changes: [], howto: [] };
+  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.2", changes: [], howto: [] };
   var q = new URLSearchParams(location.search); b.go = q.get('go') || ''; b.goArg = q.get('arg') || null; b.who = q.get('who') || '';
   b.standalone = true; b.app = b.app || JBS_EXEC;
   return b;
@@ -687,10 +687,10 @@ function preload() {
 }
 
 /* ---------------- status bar: how long things take + Undo ---------------- */
-var QUIET_ = ('me home marketing contacts campaignPreview dlvOpen dlvLive dlvDrivers dlvStatus quickSettings recipeScale recipeNames ingredients deliveries deliveryFor deliveryList shifts labelPdfs oldInvoices search productGet portalOf squareQuick quotes team squareStatus labelFiles labelPdf labelPrinted orders order customers customer products money expenses myShift staff settings recipes recipe getLabelProducts labelProducts ' +
+var QUIET_ = ('me home makeList updates marketing contacts campaignPreview dlvOpen dlvLive dlvDrivers dlvStatus quickSettings recipeScale recipeNames ingredients deliveries deliveryFor deliveryList shifts labelPdfs oldInvoices search productGet portalOf squareQuick quotes team squareStatus labelFiles labelPdf labelPrinted orders order customers customer products money expenses myShift staff settings recipes recipe getLabelProducts labelProducts ' +
   'tasks taskSuggest myHours workers subs subPreview undoList getBuilderData getPaymentData getStockData getProductFormData followUps getInvoiceDialogData ' +
   'getInvoicePreviewHtml getStatementDialogData getClockData getTwilioSetup getPlatterBoard squareLocations labelsHtml logo calcData dryingLog suppliers leads listings lastOrder speedClient speedReport').split(' ').reduce(function (o, k) { o[k] = 1; return o; }, {});
-var JOB_NAMES_ = { contactSave: 'Saving contact', contactsSync: 'Updating contacts', campaignSave: 'Saving campaign', campaignTest: 'Sending test', campaignSend: 'Sending campaign', quickSettingSet: 'Saving setting', deliverySend: 'Sending to delivery', recipeMade: 'Taking ingredients off', recipePresetSave: 'Saving preset', recipePresetDelete: 'Removing preset', ingredientSave: 'Saving ingredient', ingredientStock: 'Updating ingredient', reorderApprove: 'Approving order', rbSync: 'Reading recipes', recipesPrint: 'Getting recipes ready', oldInvoicesScan: 'Reading old invoices', labelPdfs: 'Getting labels', afterWork: 'Updating the Sales tab', shiftSave: 'Saving shift', shiftDelete: 'Deleting shift', payAdj: 'Saving pay change', payAdjDelete: 'Removing pay change', levelSet: 'Saving level', teamDelete: 'Removing from team', productSave: 'Saving product', ideaSave: 'Saving to-do', inboxSet: 'Updating email', inboxScan: 'Reading Gmail', catalogBuild: 'Updating catalog feed', catalogShare: 'Sharing feed + photos', cookStart: 'Starting dehydrator timer', cookAction: 'Updating dehydrator', notifySave: 'Saving notifications', layoutSave: 'Saving layout', payMethodsOrder: 'Ordering payment methods', quoteSave: 'Saving quote', quoteToOrder: 'Making the order', quoteDelete: 'Deleting quote', ladderSave: 'Saving levels', clockFor: 'Clocking', teamSave: 'Saving worker', payWorker: 'Paying worker', soldBy: 'Saving who got the sale', teamPhoto: 'Saving photo', commSettings: 'Saving commission', saveOrder: 'Saving order', savePayment: 'Recording payment', setStatus: 'Updating order', markBuilt: 'Marking platter made', saveExpense: 'Saving expense',
+var JOB_NAMES_ = { updateSave: 'Saving update', expLineSave: 'Saving expense', expLineDelete: 'Deleting line', expPayAll: 'Marking paid', contactSave: 'Saving contact', contactsSync: 'Updating contacts', campaignSave: 'Saving campaign', campaignTest: 'Sending test', campaignSend: 'Sending campaign', quickSettingSet: 'Saving setting', deliverySend: 'Sending to delivery', recipeMade: 'Taking ingredients off', recipePresetSave: 'Saving preset', recipePresetDelete: 'Removing preset', ingredientSave: 'Saving ingredient', ingredientStock: 'Updating ingredient', reorderApprove: 'Approving order', rbSync: 'Reading recipes', recipesPrint: 'Getting recipes ready', oldInvoicesScan: 'Reading old invoices', labelPdfs: 'Getting labels', afterWork: 'Updating the Sales tab', shiftSave: 'Saving shift', shiftDelete: 'Deleting shift', payAdj: 'Saving pay change', payAdjDelete: 'Removing pay change', levelSet: 'Saving level', teamDelete: 'Removing from team', productSave: 'Saving product', ideaSave: 'Saving to-do', inboxSet: 'Updating email', inboxScan: 'Reading Gmail', catalogBuild: 'Updating catalog feed', catalogShare: 'Sharing feed + photos', cookStart: 'Starting dehydrator timer', cookAction: 'Updating dehydrator', notifySave: 'Saving notifications', layoutSave: 'Saving layout', payMethodsOrder: 'Ordering payment methods', quoteSave: 'Saving quote', quoteToOrder: 'Making the order', quoteDelete: 'Deleting quote', ladderSave: 'Saving levels', clockFor: 'Clocking', teamSave: 'Saving worker', payWorker: 'Paying worker', soldBy: 'Saving who got the sale', teamPhoto: 'Saving photo', commSettings: 'Saving commission', saveOrder: 'Saving order', savePayment: 'Recording payment', setStatus: 'Updating order', markBuilt: 'Marking platter made', saveExpense: 'Saving expense',
   saveProduction: 'Saving batch', saveBagging: 'Saving bags', saveUnits: 'Saving units', saveCount: 'Saving count', saveNewProduct: 'Adding product',
   saveCustomer: 'Saving customer', setFollowUp: 'Saving reminder', saveStaff: 'Saving worker', clockMe: 'Clocking you', takeBreak: 'Starting break',
   taskSave: 'Saving task', taskStatus: 'Updating task', subSave: 'Saving subscription', subAction: 'Updating subscription', payWorker: 'Paying worker',
@@ -1554,10 +1554,62 @@ function bSave() {
 
 /* ================= MAKE (platter board) ================= */
 var MK = { left: true, plOnly: false, D: null };
-ROUTES.make = function () {
-  setTitle('🧺 What to make', '<button class="act" onclick="window.print()">🖨️</button>'); loading();
+ROUTES.make = function (arg) {
+  if (arg === 'list') return mlShow();
+  setTitle('🧺 What to make', '<button class="act" onclick="mlShow()">🖨 Make list</button>'); loading();
   Promise.all([call('getPlatterBoard').catch(function () { return { orders: [] }; }), call('tasks', false)]).then(function (r) { MK.D = r[0]; MK.T = r[1]; mkRender(); }).catch(fail);
 };
+/* 🖨 Make list — all platters + bags still to make, to print or send to a worker */
+function mlShow() {
+  setTitle('🖨 Make list', '<button class="act" onclick="window.print()">🖨️ Print</button>'); loading();
+  call('makeList').then(function (d) {
+    window.ML = d;
+    var h = '<div class="flex wrap noprint" style="gap:8px;margin-bottom:10px"><a class="red" style="padding:12px 16px;border-radius:12px;text-decoration:none;background:#25d366;color:#04310f;font-weight:700" target="_blank" href="https://wa.me/?text=' + encodeURIComponent(d.text) + '">📲 Send on WhatsApp</a>' +
+      '<button class="ghost" onclick="window.print()">🖨️ Print</button><button class="ghost" onclick="mlCopy()">📋 Copy</button>' + (navigator.share ? '<button class="ghost" onclick="navigator.share({text:ML.text}).catch(function(){})">↗ Share</button>' : '') +
+      '<button class="ghost" onclick="go(\'make\')">🧺 By order</button></div><div class="muted" style="margin-bottom:8px">' + d.orders + ' orders not done yet · ' + dayLabel(ME.today) + '</div>';
+    h += '<div class="sec"><h2>🧺 Platters</h2><span class="n">' + d.platters.length + '</span></div><div class="card list">' + (d.platters.length ? d.platters.map(function (p) {
+      return '<div class="row" onclick="go(\'order\',\'' + jsq(p.id) + '\')"><div class="m"><b>' + (p.qty > 1 ? p.qty + '× ' : '') + esc(p.product) + '</b><span class="muted">' + esc(p.customer) + ' · ' + esc(p.due) + '</span>' +
+        (p.kids.length ? '<div class="muted" style="margin-top:4px">' + p.kids.map(esc).join(' · ') + '</div>' : '') + (p.note ? '<div class="muted">📝 ' + esc(p.note) + '</div>' : '') + '</div>' +
+        (p.when === 'late' ? '<span class="pill red">LATE</span>' : p.when === 'today' ? '<span class="pill amber">TODAY</span>' : '') + '</div>'; }).join('') : '<div class="empty">No platters to make</div>') + '</div>';
+    var tot = d.bags.reduce(function (a, x) { return a + x.qty; }, 0);
+    h += '<div class="sec"><h2>🛍 Bags</h2><span class="n">' + tot + '</span></div><div class="card list">' + (d.bags.length ? d.bags.map(function (x) {
+      return '<div class="row"><div class="m"><b>' + esc(x.product) + '</b></div><span class="fred" style="font-size:20px">' + x.qty + '</span></div>'; }).join('') : '<div class="empty">No bags to make</div>') + '</div>';
+    $('view').innerHTML = h;
+  }).catch(fail);
+}
+function mlCopy() { try { navigator.clipboard.writeText(ML.text); toast('📋 Copied', 'ok'); } catch (e) { toast('Could not copy', 'warn'); } }
+/* 🚀 Future updates — what we build next */
+ROUTES.updates = function () {
+  setTitle('🚀 Future updates', can('Staff & Settings') ? '<button class="act" onclick="upEdit()">+ Add</button>' : ''); loading();
+  call('updates').then(function (d) {
+    window.UPD = d;
+    var groups = {}; d.list.forEach(function (u) { (groups[u.status] = groups[u.status] || []).push(u); });
+    var icon = { 'Working on it': '🛠', 'Next up': '⏭', 'Idea': '💡', 'Done': '✅' };
+    var h = '<div class="muted" style="margin-bottom:8px">Everything we still want to build. Tap one to change it. Same list as the <b>Future Updates</b> tab in the sheet.</div>';
+    d.statuses.slice().sort(function (a, b) { return ['Working on it', 'Next up', 'Idea', 'Done'].indexOf(a) - ['Working on it', 'Next up', 'Idea', 'Done'].indexOf(b); }).forEach(function (st) {
+      var g = groups[st] || []; if (!g.length) return;
+      h += '<div class="sec"><h2>' + (icon[st] || '') + ' ' + esc(st) + '</h2><span class="n">' + g.length + '</span></div><div class="card list">' + g.map(function (u) {
+        return '<div class="row" onclick="upEdit(\'' + jsq(u.id) + '\')" style="' + (st === 'Done' ? 'opacity:.6' : '') + '"><div class="m"><b>' + esc(u.update) + '</b><span class="muted">' + esc(u.area || '') + (u.notes ? ' · ' + esc(u.notes) : '') + '</span></div>' +
+          '<span class="pill ' + (u.priority === '🔥 High' ? 'red' : u.priority === 'Low' ? '' : 'amber') + '">' + esc(u.priority) + '</span></div>'; }).join('') + '</div>';
+    });
+    $('view').innerHTML = h;
+  }).catch(fail);
+};
+function upEdit(id) {
+  if (!can('Staff & Settings')) return;
+  var u = id ? UPD.list.filter(function (x) { return x.id === id; })[0] : { update: '', area: '', priority: 'Medium', status: 'Idea', notes: '' };
+  var opt = function (arr, v) { return arr.map(function (x) { return '<option' + (x === v ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join(''); };
+  openSheet('<h2>' + (id ? '🚀 Update' : '+ New update') + '</h2><label class="l">What should we build?</label><textarea id="upT" rows="3">' + esc(u.update) + '</textarea>' +
+    '<div class="grid2"><div><label class="l">Status</label><select id="upS">' + opt(UPD.statuses, u.status) + '</select></div><div><label class="l">Priority</label><select id="upP">' + opt(UPD.priorities, u.priority) + '</select></div></div>' +
+    '<label class="l">Area</label><input id="upA" value="' + esc(u.area) + '" placeholder="Square, Sales tab, Delivery…"><label class="l">Notes</label><textarea id="upN" rows="2">' + esc(u.notes) + '</textarea>' +
+    '<div class="flex" style="gap:8px;margin-top:12px"><button class="red grow" id="upGo" onclick="upSave(\'' + jsq(id || '') + '\')">Save</button>' + (id ? '<button class="ghost" onclick="upDel(\'' + jsq(id) + '\')">🗑</button>' : '') + '</div>');
+}
+function upSave(id) {
+  $('upGo').disabled = true;
+  call('updateSave', { id: id, update: $('upT').value, status: $('upS').value, priority: $('upP').value, area: $('upA').value, notes: $('upN').value })
+    .then(function () { closeSheet(); toast('🚀 Saved', 'ok'); ROUTES.updates(); }).catch(function (e) { $('upGo').disabled = false; fail(e); });
+}
+function upDel(id) { if (!confirm('Remove this update from the list?')) return; call('updateDelete', id).then(function () { closeSheet(); ROUTES.updates(); }).catch(fail); }
 function taskCard(t, compact) {
   var late = t.due && t.due < ME.today && t.status !== 'Done';
   return '<div class="oc ' + (late ? 'late' : t.due === ME.today ? 'today' : '') + '" style="cursor:default' + (t.status === 'Done' ? ';opacity:.55' : '') + '">' +
@@ -2271,6 +2323,7 @@ var NAV_ITEMS_ = [
   ['products', '🏷️', 'Products & SKUs', "go('products')", function () { return can('Products') || can('Stock'); }],
   ['stock', '📦', 'Stock', "go('stock')", function () { return can('Stock') || can('Production'); }],
   ['make', '🔪', 'What to make', "nav('make')", function () { return true; }],
+  ['makelist', '🖨', 'Make list (print / send)', "go('make','list')", function () { return can('Orders') || can('Production'); }],
   ['recipes', '📖', 'Recipes', "go('recipes')", function () { return can('Production') || can('Build Sheet'); }],
   ['ingredients', '🧂', 'Ingredients', "go('ingredients')", function () { return can('Production') || can('Build Sheet'); }],
   ['pricing', '💲', 'Pricing', "go('pricing')", function () { return can('Orders') || can('Reports & Profit'); }],
@@ -2282,6 +2335,7 @@ var NAV_ITEMS_ = [
   ['calc', '🧮', 'Calculators', "go('calc')", function () { return true; }],
   ['yearcheck', '✅', 'Year check', "go('yearcheck')", function () { return can('Reports & Profit'); }],
   ['settings', '⚙️', 'Settings', "go('settings')", function () { return can('Staff & Settings'); }],
+  ['updates', '🚀', 'Future updates', "go('updates')", function () { return can('Orders'); }],
   ['howto', '❓', 'How to', "go('howto')", function () { return true; }],
   ['more', '☰', 'Everything else', "nav('more')", function () { return true; }]
 ];

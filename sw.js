@@ -1,6 +1,6 @@
-// JBS HQ 3.1 — keeps the whole app on this device so it opens with no internet.
+// JBS HQ 3.2 — keeps the whole app on this device so it opens with no internet.
 // Your data: last-seen screens are kept by the app itself; anything you save offline waits in the app's outbox and is sent when you are back online.
-const CACHE = 'jbs-hq-3.1-muzm5ush';
+const CACHE = 'jbs-hq-3.2-muzsi7hw';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './apple-touch-icon.png', './favicon.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
