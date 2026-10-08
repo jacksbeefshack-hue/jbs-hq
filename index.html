@@ -486,8 +486,23 @@ function toast(t, kind, ms) { var x = $('toast'); x.className = kind || ''; x.in
 function isLoginErr(e) { return /(^|\W)LOGIN\s*$/.test(String(e && e.message || e || '')); }   // Google sends "Error: LOGIN"
 function fail(e) { var m = String(e && e.message || e); if (/^📴/.test(m)) { closeSheet(); toast(esc(m), 'warn', 7000); return; } toast(esc(m), 'warn'); }
 var LOAD_LINES_ = ['Slicing the salami…', 'Drying the jerky…', 'Firing up the smoker…', 'Weighing the bags…', 'Checking the kitchen…', 'Seasoning the brisket…', 'Rolling the salami…'];
-function loadingHtml() { return '<div class="loading"><span class="spinwrap"><span class="spin"></span></span><span class="lt">' + LOAD_LINES_[Math.floor(Math.random() * LOAD_LINES_.length)] + '</span></div>'; }
-function loading(el) { (el || $('view')).innerHTML = loadingHtml(); }
+function loadingHtml() {
+  return '<div class="loading"><span class="spinwrap"><span class="spin"></span></span><span class="lt">' + LOAD_LINES_[Math.floor(Math.random() * LOAD_LINES_.length)] + '</span>' +
+    '<span class="ldt" style="display:block;margin-top:6px;font:600 13px Inter,Arial;color:#8a867f"></span></div>';
+}
+var LOAD_T0 = 0, LOAD_TICK = null;
+/** Loading screen with a live clock: "Opening Orders · 2.4 s (usually ~3 s)". */
+function loading(el) {
+  (el || $('view')).innerHTML = loadingHtml(); LOAD_T0 = Date.now();
+  clearInterval(LOAD_TICK);
+  var label = String(($('title') && $('title').textContent) || '').trim();
+  LOAD_TICK = setInterval(function () {
+    var x = document.querySelectorAll('.ldt'); if (!x.length) { clearInterval(LOAD_TICK); return; }
+    var s = (Date.now() - LOAD_T0) / 1000, avg = LAST_NET_ACT ? jobAvg(LAST_NET_ACT) / 1000 : 0;
+    x.forEach(function (n) { n.textContent = 'Opening ' + (label || 'screen') + ' · ' + s.toFixed(1) + ' s' + (avg >= 1 ? ' (usually ~' + Math.round(avg) + ' s)' : '') + (s > 12 ? ' — the sheet is busy, hang on' : ''); });
+  }, 100);
+}
+var LAST_NET_ACT = '';
 function call(action) {
   var args = [].slice.call(arguments, 1);
   // screens: show what we had last time right away, refresh quietly behind it
@@ -535,6 +550,7 @@ window.addEventListener('offline', syncPaint);
 setInterval(function () { if (outbox().length) outboxFlush(); }, 30000);
 function callNet(action, args, silent, fromOutbox) {
   var write = isWriteAct(action), pid = write ? 'p' + (++PEND_N) : null;
+  if (!silent && !write) LAST_NET_ACT = action;
   if (write && navigator.onLine === false && OUTBOX_OK_[action] && !fromOutbox) {
     var q = outbox(); q.push({ a: action, args: args, t: Date.now() }); outbox(q); syncPaint();
     return Promise.reject(new Error('📴 No internet — saved on this phone. It goes to the sheet by itself when you are back online.'));
@@ -585,7 +601,7 @@ function rcPut(k, v) {
   catch (e) { rcClear(); }   // phone storage full → start over
 }
 function rcClear() { RC = {}; try { Object.keys(localStorage).forEach(function (x) { if (x.indexOf('jbs_rc|') === 0) localStorage.removeItem(x); }); } catch (e) {} }
-var SWR_STRICT_ = { order: 1, portalOf: 1, customer: 1, recipe: 1, staff: 1, myShift: 1, me: 1, lastOrder: 1, productGet: 1, undoList: 1 };
+var SWR_STRICT_ = { staff: 1, myShift: 1, me: 1, lastOrder: 1, undoList: 1 };   // everything else opens instantly from the last copy and updates itself
 function rcBusyPaint() { try { document.body.classList.toggle('rcBusy', Object.keys(RC_BUSY).length > 0); } catch (e) {} }
 function rcRefresh(k, action, args) {
   if (RC_BUSY[k]) return; RC_BUSY[k] = 1; rcBusyPaint();
@@ -1133,11 +1149,19 @@ ROUTES.orders = function (f) {
     '<div class="seg">' + segs.map(function (s) { return '<button class="' + (OF.f === s[0] && !OF.q ? 'on' : '') + '" onclick="OF.q=\'\';ROUTES.orders(\'' + s[0] + '\')">' + s[1] + '</button>'; }).join('') + '</div><div id="olist"></div>';
   oLoad();
 };
+/** Quietly fetch the first orders' details so tapping one opens instantly. */
+function oPrefetch(list) {
+  if (window.OPF_BUSY) return; window.OPF_BUSY = 1;
+  var ids = list.slice(0, 8).map(function (o) { return o.id; }).filter(function (id) { var c = rcGet(rcKey('order', [id])); return !c || Date.now() - c.t > 120000; }), i = 0;
+  (function next() { if (i >= ids.length) { window.OPF_BUSY = 0; return; } callNet('order', [ids[i++]], true).catch(function () {}).then(function () { setTimeout(next, 150); }); })();
+}
 function oSearch() { clearTimeout(oSearch.t); oSearch.t = setTimeout(function () { OF.q = $('oq').value.trim(); oLoad(); }, 350); }
 function oLoad() {
   loading($('olist'));
   call('orders', OF.f, OF.q).then(function (list) {
     if (!$('olist')) return;
+    list = list.filter(function (o) { return !HIDE_IDS[o.id]; });
+    oPrefetch(list);
     var tot = list.reduce(function (s, o) { return s + (OF.f === 'unpaid' ? o.balance : o.total); }, 0);
     $('olist').innerHTML = (list.length ? '<div class="muted" style="margin:0 4px 8px">' + list.length + ' order' + (list.length === 1 ? '' : 's') + ' · ' + money(tot) + (OF.f === 'unpaid' && !OF.q ? ' owed' : '') + '</div>' + list.map(orderCard).join('')
       : '<div class="card empty"><div class="e">🔍</div>Nothing here</div>');
@@ -1225,10 +1249,13 @@ function delOrderAsk(id, customer, total, nPays) {
     '<div class="grid2"><button class="ghost" onclick="closeSheet()">Keep it</button><button class="red" id="delGo" onclick="delOrderGo(\'' + jsq(id) + '\')">🗑 Delete</button></div>');
 }
 function delOrderGo(id) {
-  $('delGo').disabled = true;
-  call('deleteOrder', id).then(function () { closeSheet(); toast('🗑 Order ' + esc(id) + ' deleted', 'ok'); STACK = []; nav('orders'); })
-    .catch(function (e) { $('delGo').disabled = false; fail(e); });
+  // don't make you wait: close right away, the delete runs in the background (the bar at the top shows it + the seconds)
+  closeSheet(); STACK = []; HIDE_IDS[id] = 1; nav('orders');
+  toast('🗑 Deleting ' + esc(id) + '… you can keep working', 'ok', 3500);
+  call('deleteOrder', id).then(function () { toast('🗑 Order ' + esc(id) + ' deleted', 'ok'); if (CUR && /^(orders|home)$/.test(CUR.name)) softRender(); })
+    .catch(function (e) { delete HIDE_IDS[id]; fail(e); if (CUR && CUR.name === 'orders') softRender(); });
 }
+var HIDE_IDS = {};   // orders being deleted — hidden from lists right away
 function payOrder(orderId, bal, customer) {
   var methods = (ME.methods || []).map(function (m) { return '<option>' + esc(m) + '</option>'; }).join('');
   openSheet('<h2>💵 Payment' + (orderId ? ' · ' + esc(orderId) : '') + '</h2><div class="muted">' + esc(customer) + (bal ? ' · owes ' + money(bal) : '') + '</div>' +
