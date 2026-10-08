@@ -309,6 +309,60 @@ body.rcBusy::before{content:'';position:fixed;top:0;left:0;right:0;height:3px;z-
   #rail a span { width:22px; text-align:center; } #rail a:hover { background:rgba(255,255,255,.08); } #rail a.on { background:#c8102e; color:#fff; }
   #rail .rf { margin-top:auto; color:#9c958d; font-size:12px; padding:14px 8px 0; } #rail .rf a { display:inline; padding:0; color:#e0913a; font-size:12px; }
 }
+
+/* ===== v3.1 — bigger, clearer, livelier (phone + computer) ===== */
+html,body { font-size:16.5px !important; }
+.muted { font-size:14px !important; }
+button { font-size:16px !important; min-height:46px; }
+button.small { font-size:14.5px !important; min-height:40px; padding:8px 14px !important; }
+.seg button { font-size:15px !important; padding:9px 15px !important; min-height:40px; }
+.pill { font-size:13px !important; padding:3px 11px !important; }
+.oc { padding:16px !important; border-radius:18px !important; }
+.oc .who { font-size:19px !important; } .oc .amt { font-size:18px !important; } .oc .t2 { font-size:14.5px !important; }
+.tile { padding:14px 16px !important; border-radius:18px !important; } .tile .k { font-size:13px !important; } .tile .v { font-size:27px !important; }
+.sec h2 { font-size:19px !important; }
+.card { border-radius:18px !important; padding:16px !important; }
+.card h3 { font-size:18px; }
+table.t { font-size:15px !important; } table.t th { font-size:12.5px !important; } table.t td { padding:8px 5px; }
+.list .row { padding:14px 4px !important; min-height:54px; }
+.list .row .m b { font-size:16.5px; } .list .row .m .muted { font-size:14px !important; }
+label.l { font-size:13px !important; }
+input,select,textarea { font-size:17px !important; padding:13px 14px !important; }
+#tabs button { font-size:12px !important; min-width:70px; } #tabs button .i { font-size:26px !important; }
+#top h1 { font-size:22px !important; }
+.lt b { font-size:14px !important; } .lt .ic { font-size:30px !important; }
+/* screens slide in instead of flashing */
+#view > * { animation:jbsIn .22s ease both; }
+@keyframes jbsIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:none; } }
+/* live dot (things that update by themselves) */
+.livedot { display:inline-block; width:8px; height:8px; border-radius:50%; background:#16a34a; margin-right:6px; box-shadow:0 0 0 0 rgba(22,163,74,.6); animation:jbsPulse 1.8s infinite; vertical-align:middle; }
+@keyframes jbsPulse { 0% { box-shadow:0 0 0 0 rgba(22,163,74,.55); } 70% { box-shadow:0 0 0 8px rgba(22,163,74,0); } 100% { box-shadow:0 0 0 0 rgba(22,163,74,0); } }
+/* computer: everything a size bigger + roomier */
+@media (min-width:1100px) {
+  body.inapp #view { zoom:1.16; max-width:1180px !important; padding-top:18px; } body.inapp #view.nozoom { zoom:1; max-width:none !important; padding:0 !important; }
+  body.inapp #top { padding:14px 22px !important; } body.inapp #top h1 { font-size:24px !important; }
+  #rail a { font-size:16px !important; padding:11px 12px !important; } #rail .rb { font-size:21px !important; }
+  body.inapp #rail { width:250px !important; } body.inapp #top, body.inapp #view, body.inapp #pbar { margin-left:250px !important; }
+  body.inapp .twocol { gap:18px; }
+}
+
+/* expenses (old-sheet layout) */
+.exseg button { font-size:15px; }
+@media (max-width:760px) { .exseg { display:grid !important; grid-template-columns:1fr 1fr; gap:6px; overflow:visible; } .exseg button { width:100%; font-size:14px; padding:10px 6px; } }
+.exadd .exline { display:grid; grid-template-columns: 1.1fr 2fr 1.3fr 1fr 1.3fr auto; gap:8px; align-items:end; }
+.exadd .exline .w2 { min-width:0; }
+.exadd .go button { height:48px; white-space:nowrap; }
+.exmin { margin-top:8px; font-size:14px; } .exmin { display:flex; flex-wrap:wrap; align-items:center; gap:6px; } .exmin input { width:118px !important; display:inline-block; padding:6px 8px !important; font-size:15px !important; min-height:0 !important; }
+.exq { margin:10px 0 8px; }
+table.ext { width:100%; font-size:15px; } table.ext th { position:sticky; top:0; background:#14181f; color:var(--gold); font-size:13px; padding:10px 8px; white-space:nowrap; }
+table.ext td { padding:11px 8px; border-bottom:1px solid #eef0f3; cursor:pointer; vertical-align:top; } table.ext tr:hover td { background:#fff8e1; }
+table.ext tr.unpaid td { background:#fdecef; } table.ext .sm { display:none; font-size:12px; color:#777; }
+table.ext td.neg { color:#c62828; } table.ext td.pos { color:#1b5e20; } table.ext tr.tot td { background:#ffe0b2; font-weight:700; }
+.exbars { display:flex; gap:6px; height:150px; align-items:stretch; } .exbars > div { flex:1; display:flex; flex-direction:column; align-items:center; }
+.exbars .bw { flex:1; width:100%; display:flex; gap:2px; align-items:flex-end; } .exbars i { flex:1; border-radius:5px 5px 0 0; display:block; min-height:2px; }
+.exbars i.in, .dotin { background:#2e7d32; } .exbars i.out, .dotout { background:var(--red); } .exbars span { font-size:11px; color:#888; margin-top:3px; }
+.dotin, .dotout { display:inline-block; width:10px; height:10px; border-radius:3px; }
+@media (max-width:760px) { .exadd .exline { grid-template-columns: 1fr 1fr; } .exadd .exline .w2, .exadd .go { grid-column: 1 / -1; } table.ext .hm { display:none; } table.ext .sm { display:block; } table.ext { font-size:14px; } }
 </style>
 </head>
 <body>
@@ -372,7 +426,7 @@ function jbsRpc(name, args) {
 })();
 var BOOT = (function () {
   var b = null; try { b = JSON.parse(localStorage.getItem('jbs_boot') || 'null'); } catch (e) {}
-  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.0", changes: [], howto: [] };
+  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.1", changes: [], howto: [] };
   var q = new URLSearchParams(location.search); b.go = q.get('go') || ''; b.goArg = q.get('arg') || null; b.who = q.get('who') || '';
   b.standalone = true; b.app = b.app || JBS_EXEC;
   return b;
@@ -655,6 +709,7 @@ function secs(ms) { return (ms / 1000).toFixed(1) + 's'; }
 function jobStart(action) {
   var j = { id: ++JOBN, action: action, t0: Date.now(), quiet: !!QUIET_[action], name: JOB_NAMES_[action] || 'Working', avg: jobAvg(action) };
   JOBS[j.id] = j;
+  if (!JOB_NAMES_[action]) j.quiet = true;   // plain page loads show their own timer in the page, not a popup
   if (!j.quiet) { JOBSHOW = j; jobPaint(); }
   jobTick();
   return j;
@@ -686,11 +741,12 @@ function jobPaint(done) {
     return;
   }
   var ok = done.ok, u = done.undo;
+  if (ok && !u && (j.name === 'Working' || done.ms < 900)) { jobHide(); return; }   // quick / plain reads: no popup covering the screen
   el.className = 'show ' + (ok ? 'ok' : 'bad');
   el.innerHTML = (ok && u ? '' : '<span>' + (ok ? '✅' : '⚠️') + '</span>') + '<span class="jl">' + esc(ok ? (u ? u.label : 'Done · ' + j.name.toLowerCase()) : done.msg) +
     '</span><span class="jt">' + secs(done.ms) + '</span>' +
     (u ? '<button class="u" onclick="undoGo(\'' + jsq(u.id) + '\')">↩ Undo</button>' : '') + '<button class="x" onclick="jobHide()">✕</button>';
-  jobPaint.hide = setTimeout(jobHide, u ? 10000 : ok ? 3500 : 7000);
+  jobPaint.hide = setTimeout(jobHide, u ? 8000 : ok ? 1800 : 7000);
 }
 function jobHide() { $('job').classList.remove('show'); JOBSHOW = null; }
 var SPEED_Q = [];
@@ -708,7 +764,7 @@ function jobDone(j, env) {
 }
 function jobFail(j, e) {
   delete JOBS[j.id];
-  if (!j.quiet && !isLoginErr(e) && !/CHANGED:/.test(String(e && e.message))) { JOBSHOW = j; jobPaint({ ok: false, ms: Date.now() - j.t0, msg: String(e && e.message || e).replace(/^(Error|Exception):\s*/, '') }); }
+  if (!QUIET_[j.action] && !isLoginErr(e) && !/CHANGED:/.test(String(e && e.message))) { JOBSHOW = j; jobPaint({ ok: false, ms: Date.now() - j.t0, msg: String(e && e.message || e).replace(/^(Error|Exception):\s*/, '') }); }
   jobTick();
 }
 function undoGo(id, force) {
@@ -820,7 +876,7 @@ function render() {
   var tabMap = { home: 'home', orders: 'orders', order: 'orders', builder: 'new', make: 'make' };
   Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) { b.classList.toggle('on', b.dataset.t === (tabMap[CUR.name] || 'more')); });
   $('bBack').style.visibility = STACK.length ? 'visible' : 'hidden';
-  $('topAct').innerHTML = ''; window.scrollTo(0, 0);
+  $('topAct').innerHTML = ''; window.scrollTo(0, 0); $('view').classList.remove('nozoom');
   closeSheet();
   var f = ROUTES[CUR.name]; if (f) f(CUR.arg);
   try { railPaint(); } catch (e) {}
@@ -911,7 +967,7 @@ function homeDraw(res) {
     }
     // 🟢 ACTIVE NOW — who is working + what is cooking
     var on = (d.team || []).filter(function (t) { return t.open; }).length, cook = d.cooking || [], pend = !d.__x;
-    S.active = '<div class="card hot-card"><div class="flex" style="align-items:center;margin-bottom:6px"><h3 class="grow" style="margin:0">🟢 Active now</h3><span class="muted">' + (d.team ? on + ' working · ' : '') + cook.length + ' cooking</span></div>' +
+    S.active = '<div class="card hot-card"><div class="flex" style="align-items:center;margin-bottom:6px"><h3 class="grow" style="margin:0"><span class="livedot"></span>Active now</h3><span class="muted">' + (d.team ? on + ' working · ' : '') + cook.length + ' cooking</span></div>' +
       (can('Orders') ? '<div id="dlvLiveBox">' + dlvLiveHtml(window.DLV_LIVE) + '</div>' : '') +
       (d.team && d.team.length ? '<div class="team-strip">' + d.team.map(function (t) {
         var mins = t.open && t.sinceMs ? Math.round((Date.now() - t.sinceMs) / 60000) : t.minutes;
@@ -957,6 +1013,10 @@ function homeDraw(res) {
     $('view').innerHTML = head + keys.order.filter(function (k) { return keys.hidden.indexOf(k) < 0 && S[k]; }).map(function (k) { return S[k]; }).join('') +
       '<div class="c" style="margin:14px 0 4px"><button class="small ghost" onclick="arrangeAsk(\'home\')">✏️ Arrange this page</button></div>';
     tickCountdowns();
+    clearInterval(window.HOME_LIVE); window.HOME_LIVE = setInterval(function () {
+      if (!CUR || CUR.name !== 'home') { clearInterval(window.HOME_LIVE); return; }
+      if (document.visibilityState === 'visible' && safeToRedraw()) { window.DLV_LIVE = null; softRender(); }
+    }, 45000);
     if (can('Orders') && !window.DLV_LIVE_ASK && (!window.DLV_LIVE || Date.now() - window.DLV_LIVE.__t > 60000)) {
       window.DLV_LIVE_ASK = 1;
       callNet('dlvLive', [], true).then(function (x) { window.DLV_LIVE_ASK = 0; x.__t = Date.now(); window.DLV_LIVE = x; if ($('dlvLiveBox')) $('dlvLiveBox').innerHTML = dlvLiveHtml(x); }).catch(function () { window.DLV_LIVE_ASK = 0; });
@@ -1799,7 +1859,7 @@ function dlvFullScreen(url) {
 /** 🚚 JBS Delivery — your full delivery app, inside HQ (already signed in). */
 ROUTES.deliveries = function (tab) {
   if (!BOOT.dlv) return ROUTES.dlvboard();
-  setTitle('🚚 Deliveries', '<button class="act" onclick="go(\'dlvboard\')">Today</button>');
+  setTitle('🚚 Deliveries', '<button class="act" onclick="go(\'dlvboard\')">Today</button>'); $('view').classList.add('nozoom');
   $('view').innerHTML = '<div id="dlvWrap" style="margin:-10px -12px -90px;position:relative"><div id="dlvMsg" class="muted" style="padding:30px;text-align:center"><span class="spin"></span> Opening JBS Delivery…</div>' +
     '<iframe id="dlvF" title="JBS Delivery" style="display:none;width:100%;height:calc(100vh - 128px);height:calc(100dvh - 128px);border:0;background:#fff" allow="geolocation; camera; clipboard-read; clipboard-write; web-share"></iframe></div>';
   callNet('dlvOpen', [tab || ''], true).then(function (url) {
@@ -3009,28 +3069,136 @@ ROUTES.money = function (y) {
   }).catch(fail);
 };
 
-/* ================= EXPENSES ================= */
-ROUTES.expenses = function () {
-  setTitle('🧾 Expenses'); loading();
-  call('expenses').then(function (d) {
-    var h = '<div class="card"><h3>Add an expense</h3><div class="grid2"><div><label class="l">Date</label><input id="exD" type="date" value="' + d.today + '"></div><div><label class="l">Amount</label><input id="exA" type="number" inputmode="decimal"></div></div>' +
-      '<label class="l">Paid to (vendor)</label><input id="exV" list="exVl"><datalist id="exVl">' + Array.from(new Set(d.recent.map(function (e) { return e.vendor; }))).map(function (v) { return '<option value="' + esc(v) + '">'; }).join('') + '</datalist>' +
-      '<div class="grid2"><div><label class="l">Category</label><select id="exC"><option value="">—</option>' + d.categories.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
-      '<div><label class="l">Paid from</label><select id="exP"><option value="">—</option>' + d.paidFrom.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div></div>' +
-      '<label class="l">What for</label><input id="exW"><label class="l">Receipt link (optional)</label><input id="exR" placeholder="Drive / photo link">' +
-      '<button class="red block" style="margin-top:12px" id="exGo" onclick="exSave()">Save expense</button></div>';
-    if (d.owe && d.owe.length) h += '<div class="sec"><h2>📌 You still owe</h2><span class="n">' + money0(d.oweTotal) + '</span></div><div class="card list">' + d.owe.map(function (o) {
-      return '<div class="row"><div class="m"><b>' + esc(o.vendor) + '</b><span class="muted">bills with no "date paid" (last 12 months)</span></div><span class="pill red">' + money(o.amount) + '</span></div>'; }).join('') + '</div>';
-    h += '<div class="sec"><h2>Recent</h2></div><div class="card list">' + d.recent.map(function (e) {
-      return '<div class="row"><div class="m"><b>' + esc(e.vendor) + '</b><span class="muted">' + dayLabel(e.date) + ' · ' + esc(e.category || 'no category') + (e.paidFrom ? ' · ' + esc(e.paidFrom) : '') + '</span></div><span class="fred">' + money(e.amount) + '</span></div>';
-    }).join('') + '</div>';
-    $('view').innerHTML = h;
-  }).catch(fail);
+/* ================= EXPENSES — same two sides as the old "Expenses & Profit" tab ================= */
+var EXD = null, EXTAB = 'L', EXQ = '';
+ROUTES.expenses = function (y) {
+  setTitle('🧾 Expenses'); if (!EXD || (y && EXD.year !== +y)) loading();
+  call('expenses', y || (EXD ? EXD.year : '')).then(function (d) { EXD = d; exPaint(); }).catch(fail);
 };
-function exSave() {
-  var p = { date: $('exD').value, amount: $('exA').value, vendor: $('exV').value, category: $('exC').value, paidFrom: $('exP').value, desc: $('exW').value, receipt: $('exR').value };
-  $('exGo').disabled = true;
-  call('saveExpense', p).then(function () { toast('✅ Expense saved', 'ok'); ROUTES.expenses(); }).catch(function (e) { $('exGo').disabled = false; fail(e); });
+function exReload() { callNet('expenses', [EXD ? EXD.year : ''], true).then(function (d) { EXD = d; var busy = ['xaV', 'xaW', 'xaA'].some(function (k) { return $(k) && $(k).value; }) || (document.activeElement && document.activeElement.id === 'exQ'); if ($('exWrap') && !busy) exPaint(); }).catch(function () {}); }
+function exPaid(p) { if (!p) return ''; var c = /zelle/i.test(p) ? 'blue' : /cash/i.test(p) ? 'green' : /card|chase|amex|visa|credit/i.test(p) ? 'amber' : ''; return '<span class="pill ' + c + '">' + esc(p) + '</span>'; }
+function exD(iso) { if (!iso) return ''; var p = String(iso).split('-'); return p.length === 3 ? (+p[1]) + '/' + (+p[2]) + '/' + p[0].slice(2) : esc(iso); }
+function exPaint() {
+  var d = EXD, t = d.totals, mn = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var used = d.months.filter(function (m) { return m.costs || m.workers || m.received; }).length || 1;
+  var isCur = d.year === new Date().getFullYear(), mLeft = isCur ? 12 - (new Date().getMonth() + 1) : 0;
+  var avgC = (t.spent + t.workers) / used, proj = t.spent + t.workers + avgC * mLeft, profit = t.received - t.spent - t.workers;
+  var oweTot = d.owe.reduce(function (s, x) { return s + x.amount; }, 0) + d.oweWorkers.reduce(function (s, x) { return s + x.amount; }, 0);
+  var h = '<div id="exWrap"><div class="seg">' + d.years.map(function (x) { return '<button class="' + (x === d.year ? 'on' : '') + '" onclick="EXD=null;ROUTES.expenses(' + x + ')">' + x + '</button>'; }).join('') + '</div>' +
+    '<div class="tiles">' + tile('Total w workers', money0(t.spent + t.workers), 'hot', '🧾') + tile('Total spent', money0(t.spent), '', '🛒') + tile('Workers', money0(t.workers), '', '👷') +
+    tile('Who do I owe?', money0(oweTot), oweTot ? 'gold' : '', '📌', "exTab('O')") + tile('Profit ' + d.year, money0(profit), 'dark', '📈', "exTab('M')") + tile(isCur ? 'Proj. costs' : 'Avg / month', money0(isCur ? proj : avgC), '', '📅', "exTab('M')") + '</div>' +
+    '<div class="seg exseg" style="margin-top:6px">' + [['L', '🛒 Purchases', d.left.length], ['R', '👷 Workers & drivers', d.right.length], ['M', '📅 Months & profit', ''], ['O', '📌 Who do I owe', d.owe.length + d.oweWorkers.length]].map(function (b) {
+      return '<button class="' + (EXTAB === b[0] ? 'on' : '') + '" onclick="exTab(\'' + b[0] + '\')">' + b[1] + (b[2] !== '' ? ' <span class="muted">' + b[2] + '</span>' : '') + '</button>'; }).join('') + '</div>';
+  if (EXTAB === 'L' || EXTAB === 'R') h += exAddHtml(EXTAB) + '<input id="exQ" class="exq" placeholder="🔍 Find (name, category, paid with…)" value="' + esc(EXQ) + '" oninput="EXQ=this.value;exRows()"><div id="exRows"></div>';
+  if (EXTAB === 'M') h += exMonthsHtml(d, mn, avgC, proj, profit, isCur);
+  if (EXTAB === 'O') h += exOweHtml(d);
+  h += '<div class="muted" style="margin:12px 2px">Same as the Expenses tab in the sheet — change it here or there, both stay the same. Red = not paid yet. <a href="#" onclick="window.open(BOOT.sheetUrl,\'_blank\');return false">Open the sheet ↗</a></div></div>';
+  $('view').innerHTML = h; if (EXTAB === 'L' || EXTAB === 'R') exRows();
+}
+function exTab(k) { EXTAB = k; exPaint(); }
+function exAddHtml(side) {
+  var d = EXD, today = d.year === new Date().getFullYear() ? d.today : d.year + '-01-01';
+  var pay = '<select id="xaP"><option value="">not paid yet</option>' + d.paidFrom.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select>';
+  if (side === 'L') return '<div class="card exadd"><div class="exline">' +
+    '<div><label class="l">Date</label><input id="xaD" data-dc="0" type="date" value="' + today + '"></div>' +
+    '<div class="w2"><label class="l">Purchased</label><input id="xaV" list="xaVl" placeholder="e.g. Meisner, Restaurant Depot"><datalist id="xaVl">' + Array.from(new Set(d.left.map(function (e) { return e.vendor; }))).slice(-300).map(function (v) { return '<option value="' + esc(v) + '">'; }).join('') + '</datalist></div>' +
+    '<div><label class="l">Category</label><select id="xaC"><option value="">auto</option>' + d.categories.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
+    '<div><label class="l">Costs</label><input id="xaA" type="number" inputmode="decimal" placeholder="$"></div>' +
+    '<div><label class="l">Paid</label>' + pay + '</div>' +
+    '<div class="go"><button class="red block" id="xaGo" onclick="exAdd(\'L\')">+ Add</button></div></div></div>';
+  return '<div class="card exadd"><div class="exline">' +
+    '<div><label class="l">Date</label><input id="xaD" data-dc="0" type="date" value="' + today + '"></div>' +
+    '<div class="w2"><label class="l">Workers</label><input id="xaW" list="xaWl" placeholder="worker, driver or Uber…" oninput="exRate()"><datalist id="xaWl">' + d.staff.map(function (s) { return '<option value="' + esc(s.name) + '">'; }).join('') + '<option value="Uber"><option value="Roadie"></datalist></div>' +
+    '<div><label class="l">Min</label><input id="xaM" type="number" inputmode="numeric" placeholder="minutes" oninput="exCost()"></div>' +
+    '<div><label class="l">Rate</label><input id="xaR" type="number" inputmode="decimal" placeholder="$/hr" oninput="exCost()"></div>' +
+    '<div><label class="l">Costs</label><input id="xaA" type="number" inputmode="decimal" placeholder="or set $"></div>' +
+    '<div><label class="l">Paid</label>' + pay + '</div>' +
+    '<div class="go"><button class="red block" id="xaGo" onclick="exAdd(\'R\')">+ Add</button></div></div>' +
+    '<div class="muted exmin">⏱ Min calc: <input id="xaIn" type="time" value="09:00"> to <input id="xaOut" type="time" value="17:00"> <button class="small ghost" onclick="exMinCalc()">= minutes</button></div></div>';
+}
+function exRate() { var w = ($('xaW').value || '').toLowerCase(), s = EXD.staff.filter(function (x) { return x.name.toLowerCase() === w; })[0]; if (s && s.rate && !$('xaR').value) { $('xaR').value = s.rate; exCost(); } }
+function exCost() { var m = +$('xaM').value, r = +$('xaR').value; if (m > 0 && r > 0) $('xaA').value = (Math.round(m / 60 * r * 100) / 100).toFixed(2); }
+function exMinCalc() { var a = $('xaIn').value.split(':'), b = $('xaOut').value.split(':'); var m = (+b[0] * 60 + +b[1]) - (+a[0] * 60 + +a[1]); if (m < 0) m += 1440; $('xaM').value = m; exCost(); }
+function exAdd(side) {
+  var p = { side: side, date: $('xaD').value, paid: $('xaP').value };
+  if (p.paid) p.datePaid = EXD.today;
+  if (side === 'L') { p.vendor = $('xaV').value; p.cat = $('xaC').value; p.amount = $('xaA').value; }
+  else { p.who = $('xaW').value; p.min = $('xaM').value; p.rate = $('xaR').value; p.cost = $('xaA').value; if (+p.min > 0) p.cost = ''; }
+  $('xaGo').disabled = true;
+  call('expLineSave', p).then(function (r) {
+    toast('✅ Added', 'ok');
+    var row = side === 'L' ? { key: r.key, date: p.date, vendor: p.vendor, cat: p.cat, amount: +p.amount, datePaid: p.datePaid || '', paid: p.paid } :
+      { key: r.key, date: p.date, who: p.who, min: +p.min || null, hours: +p.min ? Math.round(p.min / 60 * 100) / 100 : null, rate: +p.rate || null, cost: +p.min ? Math.round(p.min / 60 * p.rate * 100) / 100 : +p.cost, datePaid: p.datePaid || '', paid: p.paid };
+    (side === 'L' ? EXD.left : EXD.right).push(row); exPaint(); exReload();
+  }).catch(function (e) { if ($('xaGo')) $('xaGo').disabled = false; fail(e); });
+}
+function exRows() {
+  var side = EXTAB, q = (EXQ || '').toLowerCase(), list = (side === 'L' ? EXD.left : EXD.right).slice().reverse();
+  if (q) list = list.filter(function (x) { return JSON.stringify(x).toLowerCase().indexOf(q) >= 0; });
+  var more = list.length > 400; list = list.slice(0, 400);
+  var h = side === 'L' ? '<table class="t ext"><tr><th>Date</th><th>Purchased</th><th class="hm">Category</th><th class="r">Costs</th><th class="hm">Date paid</th><th>Paid</th></tr>' + list.map(function (x) {
+      return '<tr class="' + (!x.datePaid && x.amount > 0 ? 'unpaid' : '') + '" onclick="exEdit(\'' + jsq(x.key) + '\')"><td>' + exD(x.date) + '</td><td><b>' + esc(x.vendor) + '</b><div class="sm">' + esc(x.cat) + '</div></td><td class="hm">' + esc(x.cat) + '</td><td class="r">' + (x.amount == null ? '' : money(x.amount)) + '</td><td class="hm">' + exD(x.datePaid) + '</td><td>' + exPaid(x.paid) + '</td></tr>'; }).join('') :
+    '<table class="t ext"><tr><th>Date</th><th>Workers</th><th class="r">Min</th><th class="r hm">Hours</th><th class="r hm">Rate</th><th class="r">Costs</th><th class="hm">Date paid</th><th>Paid</th></tr>' + list.map(function (x) {
+      return '<tr class="' + (!x.datePaid && !x.paid && x.cost > 0 ? 'unpaid' : '') + '" onclick="exEdit(\'' + jsq(x.key) + '\')"><td>' + exD(x.date) + '</td><td><b>' + esc(x.who) + '</b>' + (x.note ? '<div class="sm">' + esc(x.note) + '</div>' : '') + '</td><td class="r">' + (x.min == null ? '' : x.min) + '</td><td class="r hm muted">' + (x.hours == null ? '' : x.hours) + '</td><td class="r hm">' + (x.rate == null ? '' : money(x.rate)) + '</td><td class="r">' + money(x.cost) + '</td><td class="hm">' + exD(x.datePaid) + '</td><td>' + exPaid(x.paid) + '</td></tr>'; }).join('');
+  $('exRows').innerHTML = '<div class="card" style="padding:0;overflow-x:auto">' + (list.length ? h + '</table>' : '<div class="empty">' + (q ? 'Nothing matches.' : 'Nothing for ' + EXD.year + ' yet.') + '</div>') + '</div>' + (more ? '<div class="muted">Showing the newest 400 — use Find for older.</div>' : '');
+}
+function exFind(key) { var a = EXD.left.filter(function (x) { return x.key === key; })[0]; if (a) return { side: 'L', x: a }; var b = EXD.right.filter(function (x) { return x.key === key; })[0]; return b ? { side: 'R', x: b } : null; }
+function exEdit(key) {
+  var f = exFind(key); if (!f) return; var x = f.x, d = EXD;
+  var pay = '<select id="xeP"><option value="">not paid yet</option>' + d.paidFrom.concat(x.paid && d.paidFrom.indexOf(x.paid) < 0 ? [x.paid] : []).map(function (c) { return '<option' + (c === x.paid ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>';
+  var h = '<h2>' + (f.side === 'L' ? '🛒 Purchase' : '👷 Pay line') + '</h2><div class="grid2"><div><label class="l">Date</label><input id="xeD" data-dc="0" type="date" value="' + esc(x.date) + '"></div>';
+  if (f.side === 'L') h += '<div><label class="l">Costs</label><input id="xeA" type="number" inputmode="decimal" value="' + (x.amount == null ? '' : x.amount) + '"></div></div>' +
+    '<label class="l">Purchased</label><input id="xeV" value="' + esc(x.vendor) + '"><label class="l">Category</label><select id="xeC"><option value="">—</option>' + d.categories.concat(x.cat && d.categories.indexOf(x.cat) < 0 ? [x.cat] : []).map(function (c) { return '<option' + (c === x.cat ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select>';
+  else h += '<div><label class="l">Workers</label><input id="xeW" value="' + esc(x.who) + '"></div></div>' + (x.key.charAt(0) === 'X' ? '<label class="l">Note</label><input id="xeN" value="' + esc(x.note || '') + '"><label class="l">Costs</label><input id="xeA" type="number" inputmode="decimal" value="' + x.cost + '">' :
+    '<div class="grid2"><div><label class="l">Min</label><input id="xeM" type="number" value="' + (x.min == null ? '' : x.min) + '"></div><div><label class="l">Rate</label><input id="xeR" type="number" inputmode="decimal" value="' + (x.rate == null ? '' : x.rate) + '"></div></div>' +
+    '<label class="l">…or a set cost (no minutes)</label><input id="xeA" type="number" inputmode="decimal" value="' + (x.min ? '' : x.cost) + '">');
+  h += '<div class="grid2"><div><label class="l">Paid</label>' + pay + '</div><div><label class="l">Date paid</label><input id="xeDP" data-dc="0" type="date" value="' + (/^\d{4}-/.test(x.datePaid) ? x.datePaid : '') + '"></div></div>' +
+    '<div class="flex wrap" style="gap:8px;margin-top:12px"><button class="red grow" id="xeGo" onclick="exEditGo(\'' + jsq(key) + '\')">Save</button>' +
+    (!x.datePaid ? '<button class="green" onclick="$(\'xeDP\').value=EXD.today;if(!$(\'xeP\').value)$(\'xeP\').selectedIndex=1;exEditGo(\'' + jsq(key) + '\')">✓ Paid today</button>' : '') +
+    '<button class="ghost" onclick="exDel(\'' + jsq(key) + '\')">🗑 Delete</button></div>';
+  openSheet(h);
+}
+function exEditGo(key) {
+  var f = exFind(key), x = f.x, p = { side: f.side, key: key, date: $('xeD').value, paid: $('xeP').value, datePaid: $('xeDP').value };
+  if (p.paid && !p.datePaid) p.datePaid = EXD.today;
+  if (f.side === 'L') { p.vendor = $('xeV').value; p.cat = $('xeC').value; p.amount = $('xeA').value; }
+  else if (key.charAt(0) === 'X') { p.who = $('xeW').value; p.note = $('xeN').value; p.cost = $('xeA').value; }
+  else { p.who = $('xeW').value; p.min = $('xeM').value; p.rate = $('xeR').value; p.cost = $('xeA').value; if (+p.min > 0) p.cost = ''; }
+  $('xeGo').disabled = true;
+  call('expLineSave', p).then(function () {
+    closeSheet(); toast('✅ Saved', 'ok');
+    if (f.side === 'L') { x.date = p.date; x.vendor = p.vendor; x.cat = p.cat; x.amount = +p.amount; }
+    else { x.date = p.date; x.who = p.who; if (p.note != null) x.note = p.note; if (+p.min > 0) { x.min = +p.min; x.rate = +p.rate; x.hours = Math.round(p.min / 60 * 100) / 100; x.cost = Math.round(p.min / 60 * p.rate * 100) / 100; } else if (p.cost !== '') x.cost = +p.cost; }
+    x.paid = p.paid; x.datePaid = p.datePaid; exPaint(); exReload();
+  }).catch(function (e) { if ($('xeGo')) $('xeGo').disabled = false; fail(e); });
+}
+function exDel(key) {
+  if (!confirm('Delete this line? (It is written to Recent changes, so it can be typed back.)')) return;
+  closeSheet(); EXD.left = EXD.left.filter(function (x) { return x.key !== key; }); EXD.right = EXD.right.filter(function (x) { return x.key !== key; }); exPaint();
+  call('expLineDelete', key).then(function () { toast('🗑 Deleted', 'ok'); exReload(); }).catch(function (e) { fail(e); exReload(); });
+}
+function exMonthsHtml(d, mn, avgC, proj, profit, isCur) {
+  var tc = 0, tw = 0, tr = 0;
+  var rows = d.months.map(function (m, i) { tc += m.costs; tw += m.workers; tr += m.received;
+    return '<tr><td><b>' + mn[i] + '</b></td><td class="r">' + money0(m.costs) + '</td><td class="r">' + money0(m.workers) + '</td><td class="r hm">' + money0(m.costs + m.workers) + '</td><td class="r">' + money0(m.received) + '</td><td class="r ' + (m.profit < 0 ? 'neg' : 'pos') + '"><b>' + money0(m.profit) + '</b></td></tr>'; }).join('');
+  var max = Math.max.apply(null, d.months.map(function (m) { return Math.max(m.received, m.costs + m.workers); }).concat([1]));
+  return '<div class="card"><div class="exbars">' + d.months.map(function (m, i) {
+      return '<div><div class="bw"><i style="height:' + Math.round(m.received / max * 100) + '%" class="in"></i><i style="height:' + Math.round((m.costs + m.workers) / max * 100) + '%" class="out"></i></div><span>' + mn[i] + '</span></div>'; }).join('') +
+    '</div><div class="muted" style="font-size:13px"><span class="dotin"></span> money in &nbsp; <span class="dotout"></span> costs + workers</div></div>' +
+    '<div class="card" style="padding:0;overflow-x:auto"><table class="t ext"><tr><th>Month</th><th class="r">Costs</th><th class="r">Workers</th><th class="r hm">Both</th><th class="r">Money in</th><th class="r">Profit</th></tr>' + rows +
+    '<tr class="tot"><td>Total</td><td class="r">' + money0(tc) + '</td><td class="r">' + money0(tw) + '</td><td class="r hm">' + money0(tc + tw) + '</td><td class="r">' + money0(tr) + '</td><td class="r"><b>' + money0(profit) + '</b></td></tr></table></div>' +
+    '<div class="tiles">' + tile('Avg / month (w workers)', money0(avgC), '', '📊') + (isCur ? tile('Proj. costs ' + d.year, money0(proj), '', '📅') : '') + tile('Master total (profit)', money0(profit), 'dark', '🏆') + '</div>';
+}
+function exOweHtml(d) {
+  var blk = function (title, arr, side) { return '<div class="sec"><h2>' + title + '</h2></div><div class="card list">' + (arr.length ? arr.map(function (o) {
+    return '<div class="row"><div class="m"><b>' + esc(o.name) + '</b><span class="muted">not paid yet</span></div><span class="pill red">' + money(o.amount) + '</span><button class="small green" onclick="exPayAll(\'' + side + '\',\'' + jsq(o.name) + '\')">Paid ✓</button></div>'; }).join('') : '<div class="empty">All paid 👍</div>') + '</div>'; };
+  return blk('🛒 Bills', d.owe, 'L') + blk('👷 Workers & drivers', d.oweWorkers, 'R');
+}
+function exPayAll(side, name) {
+  var keys = (side === 'L' ? EXD.left.filter(function (x) { return x.vendor === name && !x.datePaid && x.amount > 0; }) : EXD.right.filter(function (x) { return x.who === name && !x.datePaid && !x.paid && x.cost > 0; })).map(function (x) { return x.key; });
+  openSheet('<h2>Mark ' + esc(name) + ' paid</h2><div class="muted">' + keys.length + ' line' + (keys.length === 1 ? '' : 's') + '</div><div class="grid2"><div><label class="l">Paid with</label><select id="xpP">' + EXD.paidFrom.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div><div><label class="l">Date paid</label><input id="xpD" data-dc="0" type="date" value="' + EXD.today + '"></div></div>' +
+    '<button class="green block" style="margin-top:12px" id="xpGo">✓ Mark paid</button>');
+  $('xpGo').onclick = function () { $('xpGo').disabled = true; call('expPayAll', { year: EXD.year, keys: keys, paid: $('xpP').value, date: $('xpD').value }).then(function (r) { closeSheet(); toast('✓ ' + r.n + ' marked paid', 'ok'); EXD = null; ROUTES.expenses(); }).catch(function (e) { $('xpGo').disabled = false; fail(e); }); };
 }
 
 function textStatus(lt) {
