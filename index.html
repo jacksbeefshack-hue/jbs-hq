@@ -991,6 +991,7 @@ function homeDraw(res) {
     if (d.low && d.low.length) { var out0 = d.low.filter(function (x) { return x.status === 'OUT'; }).length; pr.push(['📦', (out0 ? out0 + ' out of stock · ' : '') + d.low.length + ' low', "nav('stock')", out0 ? 'red' : 'amber']); }
     if (d.inbox && d.inbox.open.length) d.inbox.open.slice(0, 3).forEach(function (m) { pr.push([m.kind.split(' ')[0], '<b>' + esc(m.subject) + '</b>' + (m.deadline ? ' · by ' + dayLabel(m.deadline) : ''), "go('inbox')", m.kind.indexOf('Problem') >= 0 || (m.deadline && m.deadline <= d.today) ? 'red' : 'amber']); });
     if (d.inbox && d.inbox.unmatched) pr.push(['💵', d.inbox.unmatched + ' money-in email' + (d.inbox.unmatched > 1 ? 's' : '') + ' not in HQ yet', "go('inbox')", '']);
+    if (d.textsWaiting && d.textsWaiting.length) pr.push(['💬', d.textsWaiting.length + ' customer text' + (d.textsWaiting.length > 1 ? 's' : '') + ' waiting for an answer — <b>' + esc(d.textsWaiting[0].name) + '</b>: ' + esc(d.textsWaiting[0].body.slice(0, 60)), 'txShow()', d.textsWaiting.some(function (x) { return x.mins >= 120; }) ? 'red' : 'amber']);
     if (d.follow && d.follow.length) pr.push(['📨', d.follow.length + ' payment reminder' + (d.follow.length > 1 ? 's' : '') + ' to send', "nav('customers','owes')", '']);
     S.priority = '<div class="card"><h3 style="margin:0 0 6px">⚡ Do first</h3>' + (pr.length ? '<div class="list">' + pr.map(function (x) {
       return '<div class="row" onclick="' + x[2] + '"><div style="font-size:20px;width:30px;text-align:center">' + x[0] + '</div><div class="m">' + x[1] + '</div>' + (x[3] ? '<span class="pill ' + x[3] + '">now</span>' : '<span class="muted">›</span>') + '</div>'; }).join('') + '</div>' : '<div class="muted">Nothing urgent 🎉</div>') + '</div>';
@@ -1617,6 +1618,13 @@ function upSave(id) {
     .then(function () { closeSheet(); toast('🚀 Saved', 'ok'); ROUTES.updates(); }).catch(function (e) { $('upGo').disabled = false; fail(e); });
 }
 function upDel(id) { if (!confirm('Remove this update from the list?')) return; call('updateDelete', id).then(function () { closeSheet(); ROUTES.updates(); }).catch(fail); }
+function txShow() {
+  var w = (window.HOME && HOME.textsWaiting) || [];
+  openSheet('<h2>💬 Texts waiting for an answer</h2>' + (w.length ? '<div class="card list">' + w.map(function (x) {
+    return '<div class="row"><div class="m"><b>' + esc(x.name) + '</b><span class="muted">' + esc(x.body) + '</span><span class="muted">' + (x.mins < 60 ? x.mins + ' min ago' : Math.round(x.mins / 60) + 'h ago') + '</span></div>' +
+      '<a class="small green" style="padding:8px 12px;border-radius:10px;text-decoration:none" href="sms:' + esc(x.phone) + '">Reply</a></div>'; }).join('') + '</div>' : '<div class="empty">All answered 👍</div>') +
+    '<div class="muted" style="margin-top:8px">Checked every 15 minutes. You get a phone alert for each new text, and a reminder if it is still not answered after 2 hours.</div>');
+}
 function taskCard(t, compact) {
   var late = t.due && t.due < ME.today && t.status !== 'Done';
   return '<div class="oc ' + (late ? 'late' : t.due === ME.today ? 'today' : '') + '" style="cursor:default' + (t.status === 'Done' ? ';opacity:.55' : '') + '">' +
