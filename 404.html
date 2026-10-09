@@ -486,7 +486,7 @@ function jbsRpc(name, args) {
 })();
 var BOOT = (function () {
   var b = null; try { b = JSON.parse(localStorage.getItem('jbs_boot') || 'null'); } catch (e) {}
-  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.3", changes: [], howto: [] };
+  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.4", changes: [], howto: [] };
   var q = new URLSearchParams(location.search); b.go = q.get('go') || ''; b.goArg = q.get('arg') || null; b.who = q.get('who') || '';
   b.standalone = true; b.app = b.app || JBS_EXEC;
   return b;
@@ -2009,6 +2009,53 @@ function rcMadeGo() {
 function rcPrint() { rcPrintMany([{ name: RCS.name, lb: RCS.lb, x: RCS.x, copies: 1 }]); }
 
 /* ================= 🧂 INGREDIENTS ================= */
+ROUTES.buy = function () {
+  setTitle('🛒 Buy list'); loading();
+  call('buyList').then(function (d) {
+    window.BUY = d;
+    var h = '<div class="muted" style="margin:2px 2px 10px">Everything running low, with the <b>true cost each</b> at every store you buy from — price + tax + shipping − the % you get back. Recipes count the usage by themselves (✅ Made it). Tap ✅ to approve — <b>nothing is ever bought by itself</b>.</div>';
+    if (!d.list.length) h += '<div class="card empty"><div class="e">🛒</div>Nothing is running low 🎉<div class="muted" style="margin-top:6px">Set “Reorder when below” on an ingredient and it shows up here when it drops.</div></div>';
+    h += d.list.map(function (x, i) {
+      var best = x.best && x.best.eff ? x.best : null;
+      return '<div class="card"><div class="flex" style="align-items:center"><div class="grow"><b style="font-size:16px">' + esc(x.name) + '</b> <span class="pill ' + (x.status === 'OUT' ? 'red' : 'amber') + '">' + (x.status === 'OUT' ? 'OUT' : 'low') + '</span>' +
+        '<div class="muted">' + x.onHand + ' × ' + esc(x.container || '') + ' left' + (x.daysLeft !== '' ? ' · ~' + x.daysLeft + ' days' : '') + ' · order ' + x.qty + '</div></div>' +
+        (best ? '<div style="text-align:right"><div class="fred" style="font-size:18px;color:#2e7d32">$' + best.eff.toFixed(2) + '</div><div class="muted">each at ' + esc(best.store) + '</div></div>' : '') + '</div>' +
+        (x.options.length ? '<table class="t" style="margin-top:8px">' + x.options.map(function (o, k) {
+          return '<tr' + (k === 0 && o.eff ? ' style="background:#e8f5e9"' : '') + '><td><b>' + esc(o.store || '?') + '</b>' + (o.note ? '<br><span class="muted">' + esc(o.note) + '</span>' : '') + '</td>' +
+            '<td class="r">' + (o.price ? '$' + o.price.toFixed(2) + (o.pack > 1 ? ' / ' + o.pack : '') : '—') + (o.back ? '<br><span class="muted">' + o.back + '% back</span>' : '') + '</td>' +
+            '<td class="r"><b>' + (o.eff ? '$' + o.eff.toFixed(2) : '—') + '</b><br><span class="muted">each all-in</span></td>' +
+            '<td class="r">' + (o.link ? '<a href="' + esc(o.link) + '" target="_blank" rel="noreferrer">open ↗</a>' : '') + '</td></tr>';
+        }).join('') + '</table>' : '<div class="muted" style="margin-top:6px">No stores saved yet for this one.</div>') +
+        '<div class="flex wrap" style="gap:6px;margin-top:8px">' +
+        (best ? '<button class="small green" onclick="buyOk(' + i + ')">✅ Approve · ' + esc(best.store) + '</button>' : (x.link ? '<button class="small green" onclick="buyOk(' + i + ')">✅ Approve</button>' : '')) +
+        '<button class="small ghost" onclick="buyOpt(' + i + ',null)">✏️ Stores & prices</button></div></div>';
+    }).join('');
+    h += '<div class="card"><h3>How it fills itself</h3><div class="muted">1. A recipe is made → ✅ Made it takes the ingredients off.<br>2. An ingredient drops under its reorder point → it appears here and in your morning email.<br>3. You tap ✅ → a 🛒 Buy task with the cheapest store\'s link.<br>Prices refresh overnight from the saved links where the store allows it (Amazon mostly blocks that — tap open ↗ to check, the price you saw is kept).</div></div>';
+    $('view').innerHTML = h;
+  }).catch(fail);
+};
+function buyOk(i) {
+  var x = BUY.list[i], b = x.best || {};
+  call('buyApprove', { name: x.name, store: b.store || x.store, link: b.link || x.link, eff: b.eff || '' }).then(function (r) { toast('✅ On the Buy tasks: ' + esc(r.what), 'ok', 4000); go('buy'); }).catch(fail);
+}
+function buyOpt(i, row) {
+  var x = BUY.list[i], o = row == null ? { ing: x.name, pack: 1, tax: BUY.defaults.tax, back: '' } : x.options.filter(function (z) { return z.row === row; })[0];
+  openSheet('<h2>✏️ ' + esc(x.name) + ' — stores</h2>' +
+    (x.options.length ? '<div class="card list">' + x.options.map(function (z) { return '<div class="row"><div class="m"><b>' + esc(z.store) + '</b><span class="muted">' + (z.price ? '$' + z.price.toFixed(2) + (z.pack > 1 ? ' / ' + z.pack : '') : 'no price') + (z.eff ? ' → $' + z.eff.toFixed(2) + ' each' : '') + '</span></div>' + (z.row ? '<button class="small ghost" onclick="buyOptDel(' + i + ',' + z.row + ')">🗑</button>' : '<span class="muted">tab</span>') + '</div>'; }).join('') + '</div>' : '') +
+    '<label class="l">Store</label><input id="boS" list="boSl" value="' + esc(o.store || '') + '"><datalist id="boSl">' + BUY.stores.map(function (st) { return '<option value="' + esc(st) + '">'; }).join('') + '</datalist>' +
+    '<label class="l">Product link</label><input id="boL" value="' + esc(o.link || '') + '" placeholder="paste the product page">' +
+    '<div class="grid2"><div><label class="l">Pack price $</label><input id="boP" type="number" inputmode="decimal" value="' + (o.price || '') + '"></div><div><label class="l">Containers in the pack</label><input id="boK" type="number" value="' + (o.pack || 1) + '"></div></div>' +
+    '<div class="grid2"><div><label class="l">Tax %</label><input id="boT" type="number" inputmode="decimal" value="' + (o.tax === '' ? '' : o.tax) + '"></div><div><label class="l">Shipping $</label><input id="boH" type="number" inputmode="decimal" value="' + (o.ship || '') + '"></div></div>' +
+    '<label class="l">% back (Amazon biz 5, slow ship 7…)</label><input id="boB" type="number" inputmode="decimal" value="' + (o.back || '') + '">' +
+    '<label class="l">Note</label><input id="boN" value="' + esc(o.note || '') + '" placeholder="e.g. 2-day · subscribe & save">' +
+    '<button class="red block" style="margin-top:12px" onclick="buyOptGo(' + i + ',' + (o.row || 'null') + ')">Save</button>');
+}
+function buyOptGo(i, row) {
+  var p = { ing: BUY.list[i].name, row: row || '', store: $('boS').value, link: $('boL').value, pack: $('boK').value, price: $('boP').value, tax: $('boT').value, ship: $('boH').value, back: $('boB').value, note: $('boN').value };
+  if (!p.store) { toast('Which store?', 'warn'); return; }
+  call('buyOptSave', p).then(function () { closeSheet(); toast('✅ Saved', 'ok'); go('buy'); }).catch(fail);
+}
+function buyOptDel(i, row) { call('buyOptSave', { row: row, remove: true }).then(function () { closeSheet(); go('buy'); }).catch(fail); }
 ROUTES.ingredients = function () {
   setTitle('🧂 Ingredients'); loading();
   call('ingredients').then(function (d) {
@@ -2495,6 +2542,7 @@ var NAV_ITEMS_ = [
   ['marketing', '📣', 'Marketing', "go('marketing')", function () { return can('Customers') || can('Staff & Settings'); }, 'sell'],
   ['recipes', '📖', 'Recipes', "go('recipes')", function () { return can('Production') || can('Build Sheet'); }, 'kitchen'],
   ['ingredients', '🧂', 'Ingredients', "go('ingredients')", function () { return can('Production') || can('Build Sheet'); }, 'kitchen'],
+  ['buy', '🛒', 'Buy list', "go('buy')", function () { return can('Production') || can('Recipes & Make List') || can('Staff & Settings'); }, 'kitchen'],
   ['stock', '📦', 'Stock', "go('stock')", function () { return can('Stock') || can('Production'); }, 'kitchen'],
   ['products', '🏷️', 'Products & SKUs', "go('products')", function () { return can('Products') || can('Stock'); }, 'kitchen'],
   ['calc', '🧮', 'Calculators', "go('calc')", function () { return true; }, 'kitchen'],
@@ -2815,6 +2863,16 @@ ROUTES.person = function (name) {
         '<button class="small" onclick="adjAsk(\'' + jsq(name) + '\',1)">+ Bonus</button><button class="small" onclick="adjAsk(\'' + jsq(name) + '\',-1)">− Deduction / advance</button>' +
         (b ? '<button class="small" onclick="levelAsk(\'' + jsq(name) + '\')">🏅 Set level</button>' : '') + '</div></div>';
     }
+    if (can('Staff & Settings')) {
+      var pr = (window.TM && TM.people ? TM.people : []).filter(function (x) { return x.name === name; })[0] || {};
+      h += '<div class="card"><h3 style="margin:0 0 6px">⚙️ Presets</h3><table class="t">' +
+        '<tr onclick="personEdit(\'' + jsq(name) + '\')"><td class="muted">Job</td><td><b>' + esc(pr.role || P.role || '—') + '</b></td><td class="r muted">✏️</td></tr>' +
+        '<tr onclick="personEdit(\'' + jsq(name) + '\')"><td class="muted">Hourly rate</td><td><b>' + (pr.rate ? '$' + pr.rate + '/h' : '—') + '</b></td><td class="r muted">✏️</td></tr>' +
+        (b ? '<tr onclick="levelAsk(\'' + jsq(name) + '\')"><td class="muted">Level</td><td><b>' + b.level.emoji + ' ' + esc(b.level.name) + '</b></td><td class="r muted">✏️</td></tr>' : '') +
+        '<tr onclick="tmComm()"><td class="muted">Commission</td><td><b>' + (pr.effPct != null ? pr.effPct : pr.commPct != null ? pr.commPct : (window.TM ? TM.def : '')) + '%</b></td><td class="r muted">✏️</td></tr>' +
+        '<tr onclick="personEdit(\'' + jsq(name) + '\')"><td class="muted">Cell</td><td><b>' + esc(pr.phone || '—') + '</b></td><td class="r muted">✏️</td></tr>' +
+        '</table></div>';
+    }
     if (d.stats) h += workerStatsHtml(name, d.stats);
     if (can('Staff & Settings') && (d.driver || d.canDrive)) h += driverCardHtml(name, d.driver);
     h += '<div class="sec"><h2>Their dashboard (what ' + esc(name.split(' ')[0]) + ' sees)</h2></div>';
@@ -2933,10 +2991,27 @@ function shiftsAsk(name, all) {
       '<div class="seg" style="margin:8px 0"><button class="' + (all ? '' : 'on') + '" onclick="shiftsAsk(\'' + jsq(name) + '\',0)">Last 120 days</button><button class="' + (all ? 'on' : '') + '" onclick="shiftsAsk(\'' + jsq(name) + '\',1)">All time</button></div>' +
       '<div class="flex" style="gap:6px"><button class="small ghost grow" onclick="flatPayAsk(\'' + jsq(name) + '\')">💵 Add a set payment (driver run / job)</button></div>' +
       '<button class="red block" style="margin:8px 0" onclick="shiftEdit(\'' + jsq(name) + '\',null)">+ Add a shift</button>' +
-      '<div class="card list">' + (list.length ? list.map(function (x, i) {
-        return '<div class="row" onclick="shiftEdit(\'' + jsq(name) + '\',' + i + ')"><div class="m"><b>' + dayLabel(x.day) + (x.day && x.day.slice(0, 4) !== String(new Date().getFullYear()) ? ' ' + x.day.slice(0, 4) : '') + '</b><span class="muted">' + (x.flat ? '💵 set payment' : x.manual !== '' ? x.manual + ' min (typed)' : esc(x.start) + ' – ' + (x.open ? 'still on' : esc(x.end))) + (x.flat ? '' : ' · ' + x.hours + ' h × ' + money(x.rate)) + (x.note ? ' · ' + esc(x.note) : '') + '</span></div>' +
-          '<b>' + money(x.pay) + '</b> ' + (x.paid ? '<span class="pill green">paid</span>' : '<span class="pill amber">owed</span>') + '</div>'; }).join('') : '<div class="empty">No shifts yet</div>') + '</div>');
+      '<label class="toggle" style="margin:4px 0"><input type="checkbox" id="shOwed" onchange="shiftsPaint()"' + (window.SHOWED ? ' checked' : '') + '> Show only what is still owed</label>' +
+      '<div id="shList"></div>');
+    shiftsPaint();
   }).catch(fail);
+}
+function shiftsPaint() {
+  var S = window.SHL, name = S.name, list = S.list.slice();
+  window.SHOWED = !!($('shOwed') && $('shOwed').checked);
+  if (window.SHOWED) list = list.filter(function (x) { return !x.paid; });
+  var mon = '', h = '', mh = 0, mp = 0, rows = [];
+  var flushM = function () { if (!mon) return; h += '<div class="row" style="background:#f3f0ea;font-weight:800"><div class="m">' + mon + '</div><span>' + mh.toFixed(1) + ' h</span><span class="pill dark">' + money(mp) + '</span></div>' + rows.join(''); rows = []; mh = 0; mp = 0; };
+  list.forEach(function (x) {
+    var i = S.list.indexOf(x), m = x.day ? x.day.slice(0, 7) : '';
+    var lab = m ? new Date(m + '-15').toLocaleDateString(undefined, { month: 'long', year: 'numeric' }) : '—';
+    if (lab !== mon) { flushM(); mon = lab; }
+    mh += x.hours || 0; mp += x.pay || 0;
+    rows.push('<div class="row" onclick="shiftEdit(\'' + jsq(name) + '\',' + i + ')"><div class="m"><b>' + dayLabel(x.day) + (x.day && x.day.slice(0, 4) !== String(new Date().getFullYear()) ? ' ' + x.day.slice(0, 4) : '') + '</b><span class="muted">' + (x.flat ? '💵 set payment' : x.manual !== '' ? x.manual + ' min (typed)' : esc(x.start) + ' – ' + (x.open ? 'still on' : esc(x.end))) + (x.flat ? '' : ' · ' + x.hours + ' h × ' + money(x.rate)) + (x.note ? ' · ' + esc(x.note) : '') + '</span></div>' +
+      '<b>' + money(x.pay) + '</b> ' + (x.paid ? '<span class="pill green">paid</span>' : '<span class="pill amber">owed</span>') + '</div>');
+  });
+  flushM();
+  $('shList').innerHTML = '<div class="card list">' + (h || '<div class="empty">' + (window.SHOWED ? 'Nothing owed 🎉' : 'No shifts yet') + '</div>') + '</div>';
 }
 function shiftEdit(name, i) {
   var x = i == null ? { day: new Date().toISOString().slice(0, 10), start: '09:00', end: '17:00', manual: '', rateOverride: '', paid: false, note: '', flat: '' } : SHL.list[i];
@@ -3335,7 +3410,8 @@ function exAddHtml(side) {
     '<div><label class="l">Category</label><select id="xaC"><option value="">auto</option>' + d.categories.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
     '<div><label class="l">Costs</label><input id="xaA" type="number" inputmode="decimal" placeholder="$"></div>' +
     '<div><label class="l">Paid</label>' + pay + '</div>' +
-    '<div class="go"><button class="red block" id="xaGo" onclick="exAdd(\'L\')">+ Add</button></div></div></div>';
+    '<div class="go"><button class="red block" id="xaGo" onclick="exAdd(\'L\')">+ Add</button></div></div>' +
+    '<div class="muted exmin">🔁 A bill that comes every month? <button class="small gold" onclick="subAddAsk()">+ Subscription — whole year in one go</button></div></div>';
   return '<div class="card exadd"><div class="exline">' +
     '<div><label class="l">Date</label><input id="xaD" data-dc="0" type="date" value="' + today + '"></div>' +
     '<div class="w2"><label class="l">Workers</label><input id="xaW" list="xaWl" placeholder="worker, driver or Uber…" oninput="exRate()"><datalist id="xaWl">' + d.staff.map(function (s) { return '<option value="' + esc(s.name) + '">'; }).join('') + '<option value="Uber"><option value="Roadie"></datalist></div>' +
@@ -3345,6 +3421,19 @@ function exAddHtml(side) {
     '<div><label class="l">Paid</label>' + pay + '</div>' +
     '<div class="go"><button class="red block" id="xaGo" onclick="exAdd(\'R\')">+ Add</button></div></div>' +
     '<div class="muted exmin">⏱ Min calc: <input id="xaIn" type="time" value="09:00"> to <input id="xaOut" type="time" value="17:00"> <button class="small ghost" onclick="exMinCalc()">= minutes</button></div></div>';
+}
+function subAddAsk() {
+  openSheet('<h2>🔁 Add a subscription</h2><div class="muted" style="margin:0 0 10px">One row per month, this month through December. Each stays red (owed) until you mark it paid.</div>' +
+    '<label class="l">Name</label><input id="sbN" placeholder="e.g. Canva, Rent, Hashgacha">' +
+    '<label class="l">Monthly cost</label><input id="sbA" type="number" inputmode="decimal" placeholder="$">' +
+    '<label class="l">Day of the month</label><input id="sbD" type="number" inputmode="numeric" value="1" min="1" max="28">' +
+    '<label class="l">Category</label><select id="sbC"><option>Software & Subscriptions</option>' + EXD.categories.map(function (c) { return '<option>' + esc(c) + '</option>'; }).join('') + '</select>' +
+    '<button class="red block" style="margin-top:12px" onclick="subAddGo()">Add the whole year</button>');
+}
+function subAddGo() {
+  var p = { name: $('sbN').value, amount: $('sbA').value, day: $('sbD').value, cat: $('sbC').value };
+  if (!p.name || !+p.amount) { toast('Name + monthly cost first', 'warn'); return; }
+  closeSheet(); call('subAdd', p).then(function (r) { toast('🔁 ' + r.name + ': ' + r.added + ' months added', 'ok'); go('expenses'); }).catch(function (e) { toast(e.message, 'bad'); });
 }
 function exRate() { var w = ($('xaW').value || '').toLowerCase(), s = EXD.staff.filter(function (x) { return x.name.toLowerCase() === w; })[0]; if (s && s.rate && !$('xaR').value) { $('xaR').value = s.rate; exCost(); } }
 function exCost() { var m = +$('xaM').value, r = +$('xaR').value; if (m > 0 && r > 0) $('xaA').value = (Math.round(m / 60 * r * 100) / 100).toFixed(2); }
