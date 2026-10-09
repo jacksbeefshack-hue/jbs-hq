@@ -412,6 +412,16 @@ label.l { color:#374151 !important; }
 #tabs button { color:#4b5563 !important; } #tabs button.on { color:var(--red) !important; }
 #title { font-size:21px !important; }
 .steps { flex-wrap:wrap; overflow:visible !important; } .steps button { flex:1 1 auto !important; }
+
+/* 🧭 master groups: side menu + Go to */
+#rail .rg { font-size:11px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:#e0913a; margin:14px 8px 4px; padding-top:12px; border-top:1px solid rgba(255,255,255,.09); }
+#rail .rs + .rg { border-top:0; padding-top:0; margin-top:6px; }
+#rail a span { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:8px; background:rgba(255,255,255,.07); }
+#rail a.on span { background:rgba(255,255,255,.18); }
+.lgrp { display:flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#374151; margin:16px 2px 8px; padding-top:12px; border-top:1px solid #e5e7eb; }
+.gocard h3 + .lgrp { border-top:0; padding-top:4px; margin-top:6px; }
+.lgrp span { font-size:16px; }
+.moregrp { font-size:12.5px !important; color:#374151 !important; font-weight:800 !important; letter-spacing:.08em !important; margin:18px 4px 8px !important; }
 </style>
 </head>
 <body>
@@ -2471,30 +2481,32 @@ function ycWait() {
 }
 
 /* ================= 🧭 GO TO — every part of the business, one tap (Home + desktop side menu) ================= */
+/* 🧭 every screen sits in one of 6 master groups (side menu, Home "Go to", More) */
+var NAV_GROUPS_ = [['today', '🏠', 'Today'], ['sell', '🧾', 'Orders & customers'], ['kitchen', '🔥', 'Kitchen & production'], ['money', '💵', 'Money'], ['team', '👷', 'Team'], ['setup', '⚙️', 'Setup & help']];
 var NAV_ITEMS_ = [
-  ['home', '🏠', 'Home', "nav('home')", function () { return true; }],
-  ['orders', '🧾', 'Orders & sales', "nav('orders')", function () { return can('Orders'); }],
-  ['builder', '➕', 'New order', "nav('builder')", function () { return can('Orders'); }],
-  ['deliveries', '🚚', 'Deliveries', "go('deliveries')", function () { return can('Orders'); }],
-  ['customers', '👥', 'Customers', "go('customers')", function () { return can('Customers'); }],
-  ['products', '🏷️', 'Products & SKUs', "go('products')", function () { return can('Products') || can('Stock'); }],
-  ['stock', '📦', 'Stock', "go('stock')", function () { return can('Stock') || can('Production'); }],
-  ['make', '🔪', 'What to make', "nav('make')", function () { return true; }],
-  ['makelist', '🖨', 'Make list (print / send)', "go('make','list')", function () { return can('Orders') || can('Production'); }],
-  ['recipes', '📖', 'Recipes', "go('recipes')", function () { return can('Production') || can('Build Sheet'); }],
-  ['ingredients', '🧂', 'Ingredients', "go('ingredients')", function () { return can('Production') || can('Build Sheet'); }],
-  ['pricing', '💲', 'Pricing', "go('pricing')", function () { return can('Orders') || can('Reports & Profit'); }],
-  ['expenses', '🧾', 'Expenses', "go('expenses')", function () { return can('Expenses'); }],
-  ['money', '💵', 'Money', "go('money')", function () { return can('Reports & Profit'); }],
-  ['team', '👷', 'Team & drivers', "go('team')", function () { return can('Staff & Settings'); }],
-  ['myhours', '🕒', 'My hours', "go('myhours')", function () { return !can('Staff & Settings'); }],
-  ['marketing', '📣', 'Marketing', "go('marketing')", function () { return can('Customers') || can('Staff & Settings'); }],
-  ['calc', '🧮', 'Calculators', "go('calc')", function () { return true; }],
-  ['yearcheck', '✅', 'Year check', "go('yearcheck')", function () { return can('Reports & Profit'); }],
-  ['settings', '⚙️', 'Settings', "go('settings')", function () { return can('Staff & Settings'); }],
-  ['updates', '🚀', 'Future updates', "go('updates')", function () { return can('Orders'); }],
-  ['howto', '❓', 'How to', "go('howto')", function () { return true; }],
-  ['more', '☰', 'Everything else', "nav('more')", function () { return true; }]
+  ['home', '🏠', 'Home', "nav('home')", function () { return true; }, 'today'],
+  ['make', '🔪', 'What to make', "nav('make')", function () { return true; }, 'today'],
+  ['makelist', '🖨', 'Make list', "go('make','list')", function () { return can('Orders') || can('Production'); }, 'today'],
+  ['myhours', '🕒', 'My hours', "go('myhours')", function () { return !can('Staff & Settings'); }, 'today'],
+  ['orders', '🧾', 'Orders & sales', "nav('orders')", function () { return can('Orders'); }, 'sell'],
+  ['builder', '➕', 'New order', "nav('builder')", function () { return can('Orders'); }, 'sell'],
+  ['deliveries', '🚚', 'Deliveries', "go('deliveries')", function () { return can('Orders'); }, 'sell'],
+  ['customers', '👥', 'Customers', "go('customers')", function () { return can('Customers'); }, 'sell'],
+  ['marketing', '📣', 'Marketing', "go('marketing')", function () { return can('Customers') || can('Staff & Settings'); }, 'sell'],
+  ['recipes', '📖', 'Recipes', "go('recipes')", function () { return can('Production') || can('Build Sheet'); }, 'kitchen'],
+  ['ingredients', '🧂', 'Ingredients', "go('ingredients')", function () { return can('Production') || can('Build Sheet'); }, 'kitchen'],
+  ['stock', '📦', 'Stock', "go('stock')", function () { return can('Stock') || can('Production'); }, 'kitchen'],
+  ['products', '🏷️', 'Products & SKUs', "go('products')", function () { return can('Products') || can('Stock'); }, 'kitchen'],
+  ['calc', '🧮', 'Calculators', "go('calc')", function () { return true; }, 'kitchen'],
+  ['money', '💵', 'Money', "go('money')", function () { return can('Reports & Profit'); }, 'money'],
+  ['expenses', '🧾', 'Expenses', "go('expenses')", function () { return can('Expenses'); }, 'money'],
+  ['pricing', '💲', 'Pricing', "go('pricing')", function () { return can('Orders') || can('Reports & Profit'); }, 'money'],
+  ['yearcheck', '✅', 'Year check', "go('yearcheck')", function () { return can('Reports & Profit'); }, 'money'],
+  ['team', '👷', 'Team & drivers', "go('team')", function () { return can('Staff & Settings'); }, 'team'],
+  ['settings', '⚙️', 'Settings', "go('settings')", function () { return can('Staff & Settings'); }, 'setup'],
+  ['updates', '🚀', 'Future updates', "go('updates')", function () { return can('Orders'); }, 'setup'],
+  ['howto', '❓', 'How to', "go('howto')", function () { return true; }, 'setup'],
+  ['more', '☰', 'Everything else', "nav('more')", function () { return true; }, 'setup']
 ];
 /** the little live number under each tile */
 function goBadge(k, d) {
@@ -2510,15 +2522,22 @@ function goBadge(k, d) {
 }
 function goGridHtml(d) {
   var items = NAV_ITEMS_.filter(function (x) { return x[0] !== 'home' && x[4](); });
-  return '<div class="card gocard"><h3 style="margin:0 0 8px">🧭 Go to</h3><div class="launch">' + items.map(function (x) {
-    var b = goBadge(x[0], d); return '<div class="lt" onclick="' + x[3] + '"><div class="ic">' + x[1] + '</div><b>' + esc(x[2]) + '</b>' + (b ? '<span>' + b + '</span>' : '') + '</div>'; }).join('') + '</div></div>';
+  return '<div class="card gocard"><h3 style="margin:0 0 4px">🧭 Go to</h3>' + NAV_GROUPS_.map(function (g) {
+    var it = items.filter(function (x) { return x[5] === g[0]; }); if (!it.length) return '';
+    return '<div class="lgrp"><span>' + g[1] + '</span>' + esc(g[2]) + '</div><div class="launch">' + it.map(function (x) {
+      var b = goBadge(x[0], d); return '<div class="lt" onclick="' + x[3] + '"><div class="ic">' + x[1] + '</div><b>' + esc(x[2]) + '</b>' + (b ? '<span>' + b + '</span>' : '') + '</div>'; }).join('') + '</div>';
+  }).join('') + '</div>';
 }
 /** desktop: a side menu like Square's (wide screens only) */
 function railPaint() {
   var r = $('rail'); if (!r || !ME) return;
+  var on = function (x) { return CUR && (CUR.name === x[0] || (x[0] === 'orders' && CUR.name === 'order') || (x[0] === 'team' && CUR.name === 'person')); };
   r.innerHTML = '<div class="rb" onclick="nav(\'home\')">' + esc(BOOT.biz || "Jack's Beef Shack") + '<small>HQ v' + esc(BOOT.version) + '</small></div>' +
     '<div class="rs" onclick="gsOpen()">🔍 Search everything</div>' +
-    NAV_ITEMS_.filter(function (x) { return x[4](); }).map(function (x) { return '<a data-k="' + x[0] + '" class="' + (CUR && (CUR.name === x[0] || (x[0] === 'orders' && CUR.name === 'order') || (x[0] === 'team' && CUR.name === 'person')) ? 'on' : '') + '" onclick="' + x[3] + '"><span>' + x[1] + '</span>' + esc(x[2]) + '</a>'; }).join('') +
+    NAV_GROUPS_.map(function (g) {
+      var it = NAV_ITEMS_.filter(function (x) { return x[5] === g[0] && x[4](); }); if (!it.length) return '';
+      return '<div class="rg">' + esc(g[2]) + '</div>' + it.map(function (x) { return '<a data-k="' + x[0] + '" class="' + (on(x) ? 'on' : '') + '" onclick="' + x[3] + '"><span>' + x[1] + '</span>' + esc(x[2]) + '</a>'; }).join('');
+    }).join('') +
     '<div class="rf">' + esc(ME.name) + ' · <a onclick="logout()">log out</a></div>';
 }
 /* ================= 💲 PRICING DASHBOARD (Jack's own sheet, built in) ================= */
@@ -4245,15 +4264,14 @@ var MORE_ITEMS_ = [
   ['team', 'Team','👷', 'Team & drivers', 'Workers · hours · lifetime sales · pay · make someone a driver', "go('team')", function () { return can('Staff & Settings'); }],
   ['notify', 'Setup','🔔', 'Notifications', 'Push to phone & computer · email · texts — you pick', "go('notify')", function () { return can('Staff & Settings'); }],
   ['activity', 'Setup','📜', 'Activity', 'Everything that happened (clock-ins, orders, payments…)', "go('activity')", function () { return can('Staff & Settings'); }],
-  ['settings', 'Setup','⚙️', 'Settings', 'Square, Twilio, backups, business info', "go('settings')", function () { return can('Staff & Settings'); }],
-  ['speed', 'Setup','⏱️', 'Speed check', 'How long each screen & action takes (last 7 days)', "go('speed')", function () { return can('Staff & Settings'); }]
+  ['settings', 'Setup','⚙️', 'Settings', 'Square, Twilio, backups, business info', "go('settings')", function () { return can('Staff & Settings'); }]
 ];
 ROUTES.more = function () {
   setTitle('☰ More', '<button class="act" onclick="arrangeAsk(\'more\')">✏️ Arrange</button>');
   var item = function (e, t, s, on, show) { return show === false ? '' : '<div class="row" onclick="' + on + '"><div style="font-size:18px;width:30px;text-align:center;opacity:.85">' + e + '</div><div class="m"><b>' + t + '</b><span class="muted">' + s + '</span></div><span class="muted">›</span></div>'; };
   var K = arrangeKeys('more', MORE_ITEMS_.map(function (x) { return x[0]; })), by = {}; MORE_ITEMS_.forEach(function (x) { by[x[0]] = x; });
-  var GRP_ = ['Sell', 'Make', 'Money', 'Team', 'Setup'], vis = K.order.filter(function (k) { return K.hidden.indexOf(k) < 0 && by[k] && by[k][6](); });
-  $('view').innerHTML = '<div class="search" onclick="gsOpen()"><input placeholder="Search everything…" readonly></div>' + GRP_.map(function (g) { var it = vis.filter(function (k) { return by[k][1] === g; }); return it.length ? '<div class="moregrp">' + g + '</div><div class="card list">' + it.map(function (k) { var x = by[k]; return item(x[2], x[3], x[4], x[5], true); }).join('') + '</div>' : ''; }).join('') +
+  var GRP_ = ['Sell', 'Make', 'Money', 'Team', 'Setup'], GRPN_ = { Sell: '🧾 Orders & customers', Make: '🔥 Kitchen & production', Money: '💵 Money', Team: '👷 Team', Setup: '⚙️ Setup & help' }, vis = K.order.filter(function (k) { return K.hidden.indexOf(k) < 0 && by[k] && by[k][6](); });
+  $('view').innerHTML = '<div class="search" onclick="gsOpen()"><input placeholder="Search everything…" readonly></div>' + GRP_.map(function (g) { var it = vis.filter(function (k) { return by[k][1] === g; }); return it.length ? '<div class="moregrp">' + GRPN_[g] + '</div><div class="card list">' + it.map(function (k) { var x = by[k]; return item(x[2], x[3], x[4], x[5], true); }).join('') + '</div>' : ''; }).join('') +
     '<div class="card list" style="margin-top:14px">' + item('↩️', 'Recent changes · Undo', 'Take back anything done in the app (last 6 hours)', "go('changes')") + '</div><div class="card list">' + item('🚪', 'Log out', 'Signed in as ' + esc(ME.name), 'logout()') + '</div>' +
     '<div class="card" id="wnCard"><h3>🆕 What\'s new — v' + esc(BOOT.version) + '</h3><div class="muted" style="margin:2px 0 6px">Tap a version to open it.</div>' + (BOOT.changes || []).map(function (v, i) {
       return '<details class="wn"' + (i === 0 ? ' open' : '') + '><summary><b>v' + esc(v[0]) + '</b> <span class="muted">· ' + esc(v[1]) + ' · ' + v[2].length + ' change' + (v[2].length === 1 ? '' : 's') + '</span></summary>' +
@@ -4320,10 +4338,10 @@ ROUTES.settings = function () {
     var f = function (id, l, v, ph) { return '<label class="l">' + l + '</label><input id="' + id + '" value="' + esc(v == null ? '' : v) + '" placeholder="' + esc(ph || '') + '">'; };
     var pw = function (id, l, saved, ph) { return '<label class="l">' + l + (saved ? ' <span class="muted">(saved ✓ — leave blank to keep)</span>' : '') + '</label><input id="' + id + '" type="password" autocomplete="off" placeholder="' + esc(ph || '') + '">'; };
     $('view').innerHTML = '<div class="card" id="sqBox"><h3>💳 Square</h3><div class="muted"><span class="spin"></span> Checking Square…</div></div>' +
-      '<div class="card"><h3>📲 Texts (Twilio)</h3>' + (s.twilio ? '<div class="banner ok">Twilio connected</div>' : '<div class="banner warn">Not connected yet — fill these 3 in (Twilio → Console home).</div>') +
+      '<div class="card"><h3>📲 Texts (Twilio)</h3>' + (s.twilio ? '<div class="banner ok">✅ Connected · ' + esc(s.twilioFrom || '') + '</div><details><summary class="muted" style="font-weight:700;cursor:pointer">Change the Twilio login</summary>' : '<div class="banner warn">Not connected yet — fill these 3 in (Twilio → Console home).</div><div>') +
       f('seTs', 'Account SID', s.twilioSid, 'AC…') + pw('seTt', 'Auth Token', s.twilioHasToken, 'Auth Token') + f('seTf', 'Your Twilio number', s.twilioFrom || '+18447832014') +
       '<label class="l">Link to paste in Twilio (number → Messaging → "A message comes in")</label><input readonly value="' + esc(s.hook || '') + '" onclick="this.select()">' +
-      f('seFw', 'Texts from non-staff go on to (your delivery system link)', s.forward, 'https://script.google.com/macros/s/…/exec') + '</div>' +
+      (s.twilio ? '</details>' : '</div>') + '</div>' +
       '<div class="card"><h3>📲 Who gets texts</h3>' + (s.textPeople.length ? '<div class="list">' + s.textPeople.map(function (x) {
         return '<div class="row" onclick="go(\'staff\')"><div class="m"><b>' + esc(x.name) + '</b><span class="muted">' + esc(x.phone || 'no phone!') + ' · ' + esc(x.alerts.join(' · ')) + '</span><span>' + textStatus(x.last) + '</span></div><span class="muted">›</span></div>';
       }).join('') + '</div>' : '<div class="muted">Nobody yet.</div>') +
@@ -4390,7 +4408,7 @@ function sqApp(b) { b.disabled = true; call('saveSettings', { squareAppId: $('sq
 function sqOff(b) { if (!confirm('Disconnect Square? (You can paste the code again any time.)')) return; b.disabled = true; call('squareDisconnect').then(sqPaint).catch(fail); }
 function seSave() {
   var p = { auto: $('seA').checked, phone: $('seP').value, address: $('seAd').value, zelle: $('seZ').value, venmo: $('seV').value, terms: $('seT').value, footer: $('seF').value,
-    twilioSid: $('seTs').value, twilioToken: $('seTt').value, twilioFrom: $('seTf').value, forward: $('seFw').value };
+    twilioSid: $('seTs').value, twilioToken: $('seTt').value, twilioFrom: $('seTf').value };
   $('seGo').disabled = true;
   call('saveSettings', p).then(function () { $('seGo').disabled = false; toast('✅ Saved', 'ok'); ROUTES.settings(); }).catch(function (e) { $('seGo').disabled = false; fail(e); });
 }
