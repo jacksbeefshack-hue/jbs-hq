@@ -370,6 +370,48 @@ table.ext td.neg { color:#c62828; } table.ext td.pos { color:#1b5e20; } table.ex
 .row .m b, .oc .t2, label.l { font-family:'Inter',system-ui,sans-serif; }
 label.l { font-weight:700; letter-spacing:.04em; }
 .muted { line-height:1.4; }
+
+/* ===== v3.3 — Back · Refresh · Undo on top + easier to read ===== */
+#top { flex-wrap:wrap; row-gap:0; }
+#navbar { flex-basis:100%; display:flex; align-items:center; gap:8px; margin-top:9px; padding-top:9px; border-top:1px solid rgba(255,255,255,.12); }
+#navbar .nb { display:inline-flex; align-items:center; gap:7px; background:#2a2d33; color:#fff; border:1px solid #454a53; min-height:42px !important;
+  padding:7px 14px !important; font-size:15.5px !important; font-weight:700; border-radius:12px; line-height:1; }
+#navbar .nb .ni { font-size:19px; line-height:1; font-family:Arial,sans-serif; font-weight:700; }
+#navbar .nb:active { transform:scale(.96); background:#3a3f48; }
+#navbar .nb:disabled { opacity:.35; }
+#navbar #bUndo.has { background:#f7a823; color:#14181f; border-color:#f7a823; }
+#navbar #bRefresh.spinning .ri, body.rcBusy #navbar #bRefresh .ri { display:inline-block; animation:sp .9s linear infinite; }
+#navInfo { margin-left:auto; font-size:12.5px; font-weight:600; color:#a7f3c0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+#navInfo.busy { color:#ffd27a; } #navInfo.off { color:#ff9a9a; }
+@media (max-width:430px) { #navbar .nb { padding:7px 11px !important; font-size:15px !important; } #navInfo { font-size:11.5px; } }
+@media (max-width:370px) { #navInfo { display:none; } }
+/* easier to read: darker grays, clearer cards, stronger headings */
+:root { --muted:#4b5563; --bg:#eceef2; --line:#dfe3e8; }
+html,body { background:var(--bg) !important; color:#111827; }
+.muted { color:#4b5563 !important; }
+.card, .tile, .oc { border:1px solid #dde1e7 !important; box-shadow:0 1px 2px rgba(16,24,40,.06) !important; }
+.sec { margin:22px 2px 10px !important; }
+.sec h2 { font-size:20px !important; color:#111827; border-bottom:3px solid var(--gold); padding-bottom:3px; }
+.sec .n { background:#14181f !important; color:#ffd27a !important; font-size:14px !important; padding:2px 10px !important; border-radius:8px !important; }
+.card h3 { font-size:19px !important; color:#111827; margin-bottom:6px; }
+.oc .who { color:#111827; font-weight:700 !important; }
+.oc .amt { color:#111827; }
+.oc .t2 { color:#374151 !important; }
+.oc.late { border-left:6px solid var(--red) !important; background:#fff5f5 !important; }
+.oc.today { border-left:6px solid #f59e0b !important; background:#fffbeb !important; }
+.oc { border-left-width:6px !important; }
+.pill { font-weight:700 !important; }
+.pill.red { background:#fde2e4 !important; color:#b91c1c !important; } .pill.green { background:#dcfce7 !important; color:#166534 !important; }
+.pill.amber { background:#fef3c7 !important; color:#92400e !important; } .pill.blue { background:#dbeafe !important; color:#1e40af !important; }
+.tile .k { color:#374151 !important; } .tile .v { color:#111827; }
+.tile.hot .v { color:#b91c1c !important; }
+.list .row { border-bottom:1px solid #e5e7eb !important; }
+.list .row .m b { color:#111827; }
+.banner { font-size:15px !important; padding:12px 14px !important; }
+label.l { color:#374151 !important; }
+#tabs button { color:#4b5563 !important; } #tabs button.on { color:var(--red) !important; }
+#title { font-size:21px !important; }
+.steps { flex-wrap:wrap; overflow:visible !important; } .steps button { flex:1 1 auto !important; }
 </style>
 </head>
 <body>
@@ -389,7 +431,8 @@ label.l { font-weight:700; letter-spacing:.04em; }
 
 <div id="pbar"></div>
 <div id="job"></div>
-<div id="top"><button class="back" id="bBack" onclick="back()" style="visibility:hidden">‹</button><span id="topLogo"></span><div class="tt"><div id="topBiz" onclick="wnGo()">Jack's Beef Shack <span class="ver"></span></div><h1 id="title">JBS HQ</h1></div><button id="gsBtn" onclick="gsOpen()" title="Search everything">🔍</button><button id="topSheet" onclick="sheetGo()" title="Open the Google Sheet"><span class="si">📗</span><span id="syncTxt">Sheet</span></button><span id="topAct"></span></div>
+<div id="top"><span id="topLogo"></span><div class="tt"><div id="topBiz" onclick="wnGo()">Jack's Beef Shack <span class="ver"></span></div><h1 id="title">JBS HQ</h1></div><button id="gsBtn" onclick="gsOpen()" title="Search everything">🔍</button><button id="topSheet" onclick="sheetGo()" title="Open the Google Sheet"><span class="si">📗</span><span id="syncTxt">Sheet</span></button><span id="topAct"></span>
+  <div id="navbar"><button class="nb" id="bBack" onclick="back()" title="Go back to the screen before"><span class="ni">←</span>Back</button><button class="nb" id="bRefresh" onclick="refreshNow()" title="Get the newest from the sheet"><span class="ni ri">⟳</span>Refresh</button><button class="nb" id="bUndo" onclick="undoTap()" title="Take back the last change"><span class="ni">↶</span>Undo</button><span id="navInfo"></span></div></div>
 <div id="view"><div class="loading"><span class="spinwrap"><span class="spin"></span></span><span class="lt">Slicing the salami…</span></div></div>
 <nav id="rail"></nav>
 <nav id="tabs">
@@ -433,7 +476,7 @@ function jbsRpc(name, args) {
 })();
 var BOOT = (function () {
   var b = null; try { b = JSON.parse(localStorage.getItem('jbs_boot') || 'null'); } catch (e) {}
-  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.2", changes: [], howto: [] };
+  b = b || { biz: "Jack's Beef Shack", names: [], app: JBS_EXEC, version: "3.3", changes: [], howto: [] };
   var q = new URLSearchParams(location.search); b.go = q.get('go') || ''; b.goArg = q.get('arg') || null; b.who = q.get('who') || '';
   b.standalone = true; b.app = b.app || JBS_EXEC;
   return b;
@@ -572,12 +615,30 @@ function call(action) {
     // lists & dashboards: even right after a save, show the last copy instantly and update it in place
     // (a thin bar at the top shows it is updating). Edit screens always wait for the fresh copy.
     if (c && (c.t > LAST_WRITE || navigator.onLine === false || !SWR_STRICT_[action])) {
-      if (Date.now() - c.t > 3000 || c.t <= LAST_WRITE) rcRefresh(k, action, args);
-      return Promise.resolve(JSON.parse(c.j));
+      if (FORCE_RC || Date.now() - c.t > 3000 || c.t <= LAST_WRITE) rcRefresh(k, action, args, FORCE_RC);
+      SHOWN_T = SHOWN_T ? Math.min(SHOWN_T, c.t) : c.t; setTimeout(navInfoPaint, 0);
+      return Promise.resolve(patchApply(JSON.parse(c.j)));
     }
   }
-  return callNet(action, args);
+  return callNet(action, args).then(function (r) { SHOWN_T = Date.now(); return SWR_[action] ? patchApply(r) : r; });
 }
+/* ⚡ instant taps: a change shows on screen right away, the sheet catches up behind it.
+ * PATCH[id] = fields to show on anything with that id, until a fresh copy from the sheet (read after the save) arrives. */
+var PATCH = {};
+function patchSet(id, f) { PATCH[id] = { f: f, t0: Date.now(), done: 0 }; }
+function patchDone(id) { if (PATCH[id]) PATCH[id].done = Date.now(); }
+function patchDrop(id) { delete PATCH[id]; }
+function patchApply(r) {
+  if (!Object.keys(PATCH).length || !r || typeof r !== 'object') return r;
+  (function walk(x, d) {
+    if (!x || typeof x !== 'object' || d > 5) return;
+    if (Array.isArray(x)) { for (var i = 0; i < x.length; i++) walk(x[i], d + 1); return; }
+    if (x.id != null && PATCH[x.id]) { var f = PATCH[x.id].f; for (var k in f) x[k] = f[k]; }
+    for (var k2 in x) if (x[k2] && typeof x[k2] === 'object') walk(x[k2], d + 1);
+  })(r, 0);
+  return r;
+}
+function patchPrune(sentAt) { Object.keys(PATCH).forEach(function (id) { var p = PATCH[id]; if (p.done && p.done < sentAt) delete PATCH[id]; else if (Date.now() - p.t0 > 300e3) delete PATCH[id]; }); }
 /* ---------- 📗 sheet button + sync status + offline outbox ---------- */
 var PENDING = {}, PEND_N = 0, OUTBOX_OK_ = { saveOrder: 1, savePayment: 1, saveExpense: 1, clockMe: 1, clockFor: 1, takeBreak: 1, cookStart: 1, cookAction: 1, taskStatus: 1, taskSave: 1,
   quickSale: 1, setStatus: 1, markBuilt: 1, saveBagging: 1, saveProduction: 1, saveUnits: 1, saveCount: 1, dryingSave: 1, quoteSave: 1, leadSave: 1,
@@ -609,8 +670,10 @@ function isNetErr(e) { var m = String(e && e.message || e || ''); return navigat
 window.addEventListener('online', function () { syncPaint(); outboxFlush(); });
 window.addEventListener('offline', syncPaint);
 setInterval(function () { if (outbox().length) outboxFlush(); }, 30000);
-function callNet(action, args, silent, fromOutbox) {
-  var write = isWriteAct(action), pid = write ? 'p' + (++PEND_N) : null;
+var FG_N = 0;
+function callNet(action, args, silent, fromOutbox, fresh) {
+  var write = isWriteAct(action), pid = write ? 'p' + (++PEND_N) : null, sentAt = Date.now(), fg = !silent && !write;
+  if (fg) FG_N++;
   if (!silent && !write) LAST_NET_ACT = action;
   if (write && navigator.onLine === false && OUTBOX_OK_[action] && !fromOutbox) {
     var q = outbox(); q.push({ a: action, args: args, t: Date.now() }); outbox(q); syncPaint();
@@ -620,21 +683,38 @@ function callNet(action, args, silent, fromOutbox) {
   var job = silent ? null : jobStart(action);
   return new Promise(function (res, rej) {
     google.script.run.withSuccessHandler(function (env) {
-      env = env || {}; if (job) jobDone(job, env); if (pid) { delete PENDING[pid]; syncPaint(); }
+      env = env || {}; if (fg) FG_N--; if (job) jobDone(job, env); if (pid) { delete PENDING[pid]; syncPaint(); }
       var r = env.r === undefined ? null : env.r;
-      if (SWR_[action]) rcPut(rcKey(action, args), r);
+      if (SWR_[action]) { rcPut(rcKey(action, args), r); patchPrune(sentAt); }
       else if (!QUIET_[action]) LAST_WRITE = Date.now();   // something changed → don't show remembered screens from before it
+      if (action === 'me' && ME && r) ME = r;
+      if (env.undo && env.undo.id) { LAST_UNDO = { id: env.undo.id, label: env.undo.label, sends: env.undo.sends, t: Date.now() }; undoPaint(); }
       if (env.after) afterKick();
       res(r);
     }).withFailureHandler(function (e) {
+      if (fg) FG_N--;
       if (job) jobFail(job, e);
       if (pid) { delete PENDING[pid]; }
       if (isLoginErr(e)) { logout(true); }
       if (write && OUTBOX_OK_[action] && !fromOutbox && isNetErr(e)) { var q = outbox(); q.push({ a: action, args: args, t: Date.now() }); outbox(q); syncPaint(); return rej(new Error('📴 Connection dropped — saved on this phone. It goes to the sheet by itself when you are back online.')); }
       syncPaint();
       rej(e);
-    }).api2(TOKEN, action, args);
+    }).api2(TOKEN, action, args, fresh ? { fresh: 1 } : null);
   });
+}
+/* background reads wait their turn: what you're looking at goes first, then up to 2 quiet reads at a time
+ * (lots of reads at once only made the sheet slower for everyone) */
+var BGQ = [], BG_BUSY = 0, BG_T = null;
+function bgCall(action, args, first, fresh) {
+  return new Promise(function (res, rej) { var j = { a: action, g: args, res: res, rej: rej, fresh: fresh }; if (first) BGQ.unshift(j); else BGQ.push(j); bgPump(); });
+}
+function bgPump() {
+  clearTimeout(BG_T);
+  while (BG_BUSY < 2 && BGQ.length) {
+    if (FG_N > 0 && !BGQ[0].fresh && BG_BUSY > 0) { BG_T = setTimeout(bgPump, 300); return; }
+    var j = BGQ.shift(); BG_BUSY++;
+    callNet(j.a, j.g, true, false, j.fresh).then(j.res, j.rej).then(function () { BG_BUSY--; bgPump(); });
+  }
 }
 
 /* ⚡ the server finished the save; the Sales-tab row + alerts go right after, quietly */
@@ -662,14 +742,15 @@ function rcPut(k, v) {
   catch (e) { rcClear(); }   // phone storage full → start over
 }
 function rcClear() { RC = {}; try { Object.keys(localStorage).forEach(function (x) { if (x.indexOf('jbs_rc|') === 0) localStorage.removeItem(x); }); } catch (e) {} }
-var SWR_STRICT_ = { staff: 1, myShift: 1, me: 1, lastOrder: 1, undoList: 1 };   // everything else opens instantly from the last copy and updates itself
-function rcBusyPaint() { try { document.body.classList.toggle('rcBusy', Object.keys(RC_BUSY).length > 0); } catch (e) {} }
-function rcRefresh(k, action, args) {
+var SWR_STRICT_ = { staff: 1, lastOrder: 1, undoList: 1 };   // everything else opens instantly from the last copy and updates itself
+function rcBusyPaint() { try { document.body.classList.toggle('rcBusy', Object.keys(RC_BUSY).length > 0); navInfoPaint(); } catch (e) {} }
+function rcRefresh(k, action, args, fresh) {
   if (RC_BUSY[k]) return; RC_BUSY[k] = 1; rcBusyPaint();
   var before = (RC[k] || {}).j, here = CUR;
-  callNet(action, args, true).then(function () {
+  bgCall(action, args, true, fresh).then(function () {
     delete RC_BUSY[k]; rcBusyPaint();
-    if ((RC[k] || {}).j !== before && CUR === here && safeToRedraw()) softRender();
+    if (CUR === here) SHOWN_T = Date.now();
+    if (((RC[k] || {}).j !== before || Object.keys(PATCH).length) && CUR === here && safeToRedraw()) softRender();
   }).catch(function () { delete RC_BUSY[k]; rcBusyPaint(); });
 }
 function safeToRedraw() {
@@ -677,7 +758,7 @@ function safeToRedraw() {
   if (a && /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName)) return false;
   return !$('sheet').classList.contains('open') && !$('full').classList.contains('open') && $('login').style.display !== 'flex';
 }
-function softRender() { var y = window.scrollY; var f = ROUTES[CUR.name]; if (f) f(CUR.arg); setTimeout(function () { window.scrollTo(0, y); }, 0); }
+function softRender() { var y = window.scrollY; SHOWN_T = 0; var f = ROUTES[CUR.name]; if (f) f(CUR.arg); setTimeout(function () { window.scrollTo(0, y); navInfoPaint(); }, 0); }
 /** Right after login: fetch the main screens in the background so tapping them is instant. */
 function preload() {
   var list = [['orders', 'live', ''], ['getPlatterBoard'], ['tasks', false], ['customers', '', '']];   // home is already loading
@@ -685,13 +766,28 @@ function preload() {
   if (can('Products') || can('Stock')) list.push(['products']);
   if (can('Reports & Profit')) list.push(['money', '']);
   if (can('Staff & Settings')) list.push(['team']);
-  list.forEach(function (x, i) {
-    setTimeout(function () {
-      var k = rcKey(x[0], x.slice(1)), c = rcGet(k);
-      if (!c || Date.now() - c.t > 3000) callNet(x[0], x.slice(1), true).catch(function () {});
-    }, 400 + i * 250);
+  list.push(['home', 'core'], ['homeExtras'], ['myShift'], ['recipes']);
+  if (can('Reports & Profit')) list.push(['expenses', '']);
+  PRELOAD_LIST = list;
+  setTimeout(function () { warmUp(true); }, 1500);   // after the screen you opened has its data
+}
+/* 🔥 keep the main screens fresh in the background (every 5 min while the app is open), so tapping them is instant */
+var PRELOAD_LIST = [], WARM_T = 0;
+function warmUp(first) {
+  if (!TOKEN || document.visibilityState === 'hidden' || navigator.onLine === false) return;
+  WARM_T = Date.now();
+  PRELOAD_LIST.forEach(function (x) {
+    var k = rcKey(x[0], x.slice(1)), c = rcGet(k);
+    if (RC_BUSY[k]) return;
+    if (!c || Date.now() - c.t > (first ? 60e3 : 240e3)) bgCall(x[0], x.slice(1)).catch(function () {});
   });
 }
+setInterval(function () { if (Date.now() - WARM_T > 290e3) warmUp(); }, 30e3);
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState !== 'visible' || !TOKEN || !CUR) return;
+  if (safeToRedraw()) { FORCE_RC = false; softRender(); }   // came back to the app → what you see updates itself
+  if (Date.now() - WARM_T > 120e3) setTimeout(warmUp, 2000);
+});
 
 /* ---------------- status bar: how long things take + Undo ---------------- */
 var QUIET_ = ('me home makeList updates marketing contacts campaignPreview dlvOpen dlvLive dlvDrivers dlvStatus quickSettings recipeScale recipeNames ingredients deliveries deliveryFor deliveryList shifts labelPdfs oldInvoices search productGet portalOf squareQuick quotes team squareStatus labelFiles labelPdf labelPrinted orders order customers customer products money expenses myShift staff settings recipes recipe getLabelProducts labelProducts ' +
@@ -871,18 +967,56 @@ function logout(expired) { document.body.classList.remove('inapp'); rcClear(); T
 /* ---------------- navigation ---------------- */
 var ROUTES = {};
 function nav(name, arg, keep) {
-  if (!keep) STACK = [];
-  else if (CUR) STACK.push(CUR);
+  // every screen change is remembered, so ← Back always goes to the screen you were on (tabs too)
+  if (CUR && !(CUR.name === name && JSON.stringify(CUR.arg) === JSON.stringify(arg))) { STACK.push(CUR); if (STACK.length > 40) STACK.shift(); }
   CUR = { name: name, arg: arg };
   render();
   try { google.script.history.push({ n: name }, null, name); } catch (e) {}
 }
 function go(name, arg) { nav(name, arg, true); }
-function back() { if (!STACK.length) return nav('home'); CUR = STACK.pop(); render(); }
+function back() {
+  if ($('sheet').classList.contains('open')) { closeSheet(); return; }          // a pop-up is open → close it first
+  if ($('full').classList.contains('open')) { closeFull(); return; }
+  if (!STACK.length) { if (CUR && CUR.name !== 'home') { CUR = { name: 'home' }; render(); } return; }
+  CUR = STACK.pop(); render();
+}
+/* ⟳ Refresh: the screen stays put, the newest from the sheet comes in behind it */
+var FORCE_RC = false;
+function refreshNow() {
+  var b = $('bRefresh'); if (b) b.classList.add('spinning');
+  try { outboxFlush(); } catch (e) {}
+  FORCE_RC = true; try { softRender(); } finally { FORCE_RC = false; }
+  setTimeout(function () { if (!Object.keys(RC_BUSY).length && b) b.classList.remove('spinning'); }, 600);
+}
+/* ↶ Undo: the last change you made (or the list of recent changes) */
+var LAST_UNDO = null;
+function undoPaint() {
+  var b = $('bUndo'); if (!b) return;
+  var on = LAST_UNDO && Date.now() - LAST_UNDO.t < 6 * 3600e3;
+  b.classList.toggle('has', !!on);
+  b.title = on ? 'Take back: ' + LAST_UNDO.label : 'Recent changes — take anything back';
+}
+function undoTap() {
+  var on = LAST_UNDO && Date.now() - LAST_UNDO.t < 6 * 3600e3;
+  if (!on) { go('changes'); return; }
+  openSheet('<h2>↶ Undo the last change?</h2><div class="card" style="margin:8px 0"><b style="font-size:18px">' + esc(LAST_UNDO.label) + '</b><div class="muted">' + ago(LAST_UNDO.t) + (LAST_UNDO.sends ? ' · 📲 texts already went out (they can\'t be unsent)' : '') + '</div></div>' +
+    '<button class="gold block" style="font-size:18px" onclick="closeSheet();undoGo(\'' + jsq(LAST_UNDO.id) + '\')">↶ Yes — take it back</button>' +
+    '<button class="ghost block" style="margin-top:8px" onclick="closeSheet();go(\'changes\')">See all recent changes</button>');
+}
+/* the little line on the right of the bar: is what you see fresh? */
+var SHOWN_T = 0;
+function navInfoPaint() {
+  var x = $('navInfo'); if (!x) return;
+  var busy = Object.keys(RC_BUSY).length > 0, off = navigator.onLine === false;
+  x.className = off ? 'off' : busy ? 'busy' : '';
+  x.textContent = off ? '📴 offline — showing saved copy' : busy ? 'getting the newest…' : SHOWN_T && Date.now() - SHOWN_T > 90e3 ? 'updated ' + ago(SHOWN_T) : '✓ up to date';
+  var b = $('bRefresh'); if (b && !busy) b.classList.remove('spinning');
+}
+setInterval(navInfoPaint, 15000);
 function render() {
   var tabMap = { home: 'home', orders: 'orders', order: 'orders', builder: 'new', make: 'make' };
   Array.prototype.forEach.call(document.querySelectorAll('#tabs button'), function (b) { b.classList.toggle('on', b.dataset.t === (tabMap[CUR.name] || 'more')); });
-  $('bBack').style.visibility = STACK.length ? 'visible' : 'hidden';
+  $('bBack').disabled = !STACK.length && CUR.name === 'home'; undoPaint(); SHOWN_T = 0; setTimeout(navInfoPaint, 50);
   $('topAct').innerHTML = ''; window.scrollTo(0, 0); $('view').classList.remove('nozoom');
   closeSheet();
   var f = ROUTES[CUR.name]; if (f) f(CUR.arg);
@@ -912,6 +1046,7 @@ function closeFull() { $('full').classList.remove('open'); $('full').innerHTML =
 function start() {
   loading();
   call('me').then(function (me) {
+    if (ME) return;   // (already started from the remembered copy)
     ME = me; $('tabs').style.display = 'flex'; document.body.classList.add('inapp');
     if (store('jbs_ver') !== BOOT.version) { store('jbs_ver', BOOT.version); setTimeout(function () { toast('🆕 Updated to v' + BOOT.version + ' — see More → What\'s new', 'ok', 5000); }, 1200); }
     var p = new URLSearchParams(location.search);
@@ -1298,8 +1433,10 @@ ROUTES.order = function (id) {
   }).catch(fail);
 };
 function setStatus(id, s) {
-  toast('<span class="spin"></span>');
-  call('setStatus', id, s).then(function () { toast('✅ ' + s, 'ok'); render(); }).catch(fail);
+  // ⚡ shows right away; the sheet is updated behind it (and it goes back if the save fails)
+  patchSet(id, { status: s }); toast('✅ ' + esc(s), 'ok'); softRender();
+  call('setStatus', id, s).then(function () { patchDone(id); if (CUR) softRender(); })
+    .catch(function (e) { patchDrop(id); if (CUR) softRender(); fail(e); });
 }
 function invPdf(id) { toast('<span class="spin"></span> Making PDF…'); call('saveInvoicePdf', id).then(function (r) { toast('📎 Saved', 'ok'); window.open(r.url, '_blank'); }).catch(fail); }
 function invEmail(id, email) {
@@ -1636,7 +1773,10 @@ function taskCard(t, compact) {
       (t.product ? '<button class="small ghost" onclick="labelsFor(\'' + jsq(t.product) + '\',' + (t.qty || 1) + ')">🏷️ Labels</button>' : '') +
       (t.status !== 'Done' ? '<button class="small green" onclick="taskDone(\'' + jsq(t.id) + '\',this)">✓ Done</button>' : '') + '</div></div>';
 }
-function taskDone(id, btn) { btn.disabled = true; call('taskStatus', id, 'Done').then(function () { toast('✅ Done', 'ok'); render(); }).catch(function (e) { btn.disabled = false; fail(e); }); }
+function taskDone(id, btn) {
+  patchSet(id, { status: 'Done' }); toast('✅ Done', 'ok'); softRender();
+  call('taskStatus', id, 'Done').then(function () { patchDone(id); if (CUR) softRender(); }).catch(function (e) { patchDrop(id); if (CUR) softRender(); fail(e); });
+}
 function mkRender() {
   var T = MK.T || { tasks: [] }, th = '';
   th = '<div class="sec"><h2>✅ My tasks</h2><span class="n">' + T.tasks.length + '</span>' + (T.canAssign ? '<button class="small red" onclick="taskNew()">+ Task</button>' : '') + '</div>' +
@@ -1663,11 +1803,13 @@ function mkRender() {
   $('view').innerHTML = h + (any ? '' : '<div class="card empty"><div class="e">🎉</div>Nothing left to make</div>');
 }
 function mkMark(id, built, btn) {
-  btn.disabled = true;
+  // ⚡ ticks right away; the sheet catches up behind it
+  var setB = function (v) { MK.D.orders.forEach(function (o) { o.lines.forEach(function (l) { if (l.lineId === id) l.built = v; }); o.left = o.lines.filter(function (l) { return !l.built; }).length; }); };
+  setB(built); mkRender();
   call('markBuilt', id, built).then(function (r) {
-    MK.D.orders.forEach(function (o) { o.lines.forEach(function (l) { if (l.lineId === id) l.built = built; }); o.left = o.lines.filter(function (l) { return !l.built; }).length; if (o.id === r.orderId) o.status = r.status; });
-    mkRender(); toast(r.allDone ? '✅ ' + r.orderId + ' all made → Ready' : 'Saved', 'ok');
-  }).catch(function (e) { btn.disabled = false; fail(e); });
+    MK.D.orders.forEach(function (o) { if (o.id === r.orderId) o.status = r.status; });
+    if (r.allDone) { mkRender(); toast('✅ ' + r.orderId + ' all made → Ready', 'ok'); }
+  }).catch(function (e) { setB(!built); mkRender(); fail(e); });
 }
 
 function taskNew(pre) {
